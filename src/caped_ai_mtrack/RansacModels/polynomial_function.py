@@ -1,5 +1,7 @@
 import numpy as np
 
+from ..Solvers import NewtonRaphson
+
 
 class PolynomialFunction:
     def __init__(self, points: np.ndarray, degree: int):
@@ -30,3 +32,10 @@ class PolynomialFunction:
 
         Q, R = np.linalg.qr(X)
         self.coefficients = np.flip(np.linalg.inv(R).dot(Q.T.dot(y)))
+
+    def distance(self, point):
+
+        x1 = point[1]
+        y1 = point[0]
+
+        return NewtonRaphson(self.degree, self.coeff).run(x1, y1)
