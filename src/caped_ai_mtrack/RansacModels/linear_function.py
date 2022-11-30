@@ -5,7 +5,8 @@ class LinearFunction:
     def __init__(self, points: np.ndarray):
 
         self.points = points
-        self.coeff = []
+        self.min_num_points = 2
+        self.coeff = np.zeros(2)
 
     def fit(self):
 
