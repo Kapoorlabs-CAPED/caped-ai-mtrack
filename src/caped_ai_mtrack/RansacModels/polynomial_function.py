@@ -29,4 +29,4 @@ class PolynomialFunction:
             Y[k, :] = y
 
         Q, R = np.linalg.qr(X)
-        self.coefficients = np.linalg.inv(R).dot(Q.T.dot(y))
+        self.coefficients = np.flip(np.linalg.inv(R).dot(Q.T.dot(y)))
