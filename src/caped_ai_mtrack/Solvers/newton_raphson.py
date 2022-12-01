@@ -17,7 +17,7 @@ class NewtonRaphson:
         self.delpolyfuncdiff = 0
         self.secdelpolyfuncdiff = 0
         self.MAX_ITER = 1000000
-        self.MIN_CHANGE = 1.0e-3
+        self.MIN_CHANGE = 1.0e-4
 
     def _updatePowCache(self, xc: float):
 
