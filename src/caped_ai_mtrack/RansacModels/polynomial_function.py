@@ -5,12 +5,12 @@ from .generalized_function import GeneralFunction
 
 
 class PolynomialFunction(GeneralFunction):
-    def __init__(self, points: np.ndarray, degree: int):
+    def __init__(self, points: list, degree: int):
 
-        super(GeneralFunction, self).__init__(points)
+        super(GeneralFunction, self).__init__(points, degree)
+        self.points = np.asarray(self.points)
         self.num_points = self.get_num_points()
 
-        self.degree = degree
         self.coeff = np.zeros(degree + 1)
         self.min_num_points = degree + 1
 
@@ -35,6 +35,8 @@ class PolynomialFunction(GeneralFunction):
         Q, R = np.linalg.qr(X)
         self.coefficients = np.flip(np.linalg.inv(R).dot(Q.T.dot(y)))
 
+        return True
+
     def get_coefficients(self, j):
 
         return self.coeff[j]
@@ -52,3 +54,15 @@ class PolynomialFunction(GeneralFunction):
         y1 = point[0]
 
         return NewtonRaphson(self.degree, self.coeff).run(x1, y1)
+
+    def residuals(self):
+
+        shortest_distances = []
+
+        for i in range(self.num_points):
+
+            point = self.points[i]
+
+            shortest_distances.append(self.distance(point))
+
+        return shortest_distances

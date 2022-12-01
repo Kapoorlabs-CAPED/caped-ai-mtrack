@@ -7,11 +7,11 @@ from .generalized_function import GeneralFunction
 
 
 class QuadraticFunction(GeneralFunction):
-    def __init__(self, points: np.ndarray, degree: int):
+    def __init__(self, points: list, degree: int):
 
-        super(GeneralFunction, self).__init__(points)
+        super(GeneralFunction, self).__init__(points, degree)
+        self.points = np.asarray(self.points)
         self.num_points = self.get_num_points()
-        self.degree = degree
         self.min_num_points = 3
         self.coeff = np.zeros(3)
 
@@ -56,6 +56,8 @@ class QuadraticFunction(GeneralFunction):
         self.coeff[2] = (
             delta[6] * theta[0] + delta[7] * theta[1] + delta[8] * theta[2]
         )
+
+        return True
 
     def get_coefficients(self, j):
 
@@ -147,3 +149,15 @@ class QuadraticFunction(GeneralFunction):
         )
 
         return math.min(returndistA, math.min(returndistB, returndistC))
+
+    def residuals(self):
+
+        shortest_distances = []
+
+        for i in range(self.num_points):
+
+            point = self.points[i]
+
+            shortest_distances.append(self.distance(point))
+
+        return shortest_distances

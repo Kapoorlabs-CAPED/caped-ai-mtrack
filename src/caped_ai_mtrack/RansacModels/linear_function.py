@@ -4,9 +4,10 @@ from .generalized_function import GeneralFunction
 
 
 class LinearFunction(GeneralFunction):
-    def __init__(self, points: np.ndarray):
+    def __init__(self, points: list):
 
-        super(GeneralFunction, self).__init__(points)
+        super(GeneralFunction, self).__init__(points, 1)
+        self.points = np.asarray(self.points)
         self.num_points = self.get_num_points()
         self.min_num_points = 2
         self.coeff = np.zeros(self.min_num_points)
@@ -38,6 +39,8 @@ class LinearFunction(GeneralFunction):
         self.coeff[0] = delta[0] * theta[0] + delta[1] * theta[1]
         self.coeff[1] = delta[2] * theta[0] + delta[3] * theta[1]
 
+        return True
+
     def get_coefficients(self, j):
 
         return self.coeff[j]
@@ -56,3 +59,15 @@ class LinearFunction(GeneralFunction):
         return abs(y1 - self.coeff[0] * x1 - self.coeff[1]) / np.sqrt(
             1 + self.coeff[0] * self.coeff[0]
         )
+
+    def residuals(self):
+
+        shortest_distances = []
+
+        for i in range(self.num_points):
+
+            point = self.points[i]
+
+            shortest_distances.append(self.distance(point))
+
+        return shortest_distances
