@@ -152,6 +152,7 @@ class Ransac:
             # select inliers for each data array
             data_inliers = [d[best_inliers] for d in self.data_points]
             self.model = self.model_class(data_inliers, self.degree)
+
             self.model.fit()
 
         else:
