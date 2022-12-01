@@ -3,21 +3,23 @@ import math
 import numpy as np
 
 from ..Solvers import NewtonRaphson
+from .generalized_function import GeneralFunction
 
 
-class QuadraticFunction:
+class QuadraticFunction(GeneralFunction):
     def __init__(self, points: np.ndarray, degree: int):
-        self.points = points
+
+        super(GeneralFunction, self).__init__(points)
+        self.num_points = self.get_num_points()
         self.degree = degree
         self.min_num_points = 3
         self.coeff = np.zeros(3)
 
     def fit(self):
 
-        n_points = self.points.shape[0]
         delta = np.zeros(9)
         theta = np.zeros(3)
-        for i in range(n_points):
+        for i in range(self.num_points):
 
             point = self.points[i]
 
@@ -54,6 +56,17 @@ class QuadraticFunction:
         self.coeff[2] = (
             delta[6] * theta[0] + delta[7] * theta[1] + delta[8] * theta[2]
         )
+
+    def get_coefficients(self, j):
+
+        return self.coeff[j]
+
+    def predict(self, x):
+
+        y = 0.0
+        for j in range(self.degree):
+            y = self.get_coefficients(j) + (x * y)
+        return y
 
     def distance(self, point):
 

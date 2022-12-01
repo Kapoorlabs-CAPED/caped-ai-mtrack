@@ -1,19 +1,21 @@
 import numpy as np
 
+from .generalized_function import GeneralFunction
 
-class LinearFunction:
+
+class LinearFunction(GeneralFunction):
     def __init__(self, points: np.ndarray):
 
-        self.points = points
+        super(GeneralFunction, self).__init__(points)
+        self.num_points = self.get_num_points()
         self.min_num_points = 2
-        self.coeff = np.zeros(2)
+        self.coeff = np.zeros(self.min_num_points)
 
     def fit(self):
 
-        n_points = self.points.shape[0]
         delta = np.zeros(4)
         theta = np.zeros(2)
-        for i in range(n_points):
+        for i in range(self.num_points):
 
             point = self.points[i]
 
@@ -35,6 +37,16 @@ class LinearFunction:
 
         self.coeff[0] = delta[0] * theta[0] + delta[1] * theta[1]
         self.coeff[1] = delta[2] * theta[0] + delta[3] * theta[1]
+
+    def get_coefficients(self, j):
+
+        return self.coeff[j]
+
+    def predict(self, x):
+
+        y = self.coeff[0] * x + self.coeff[1]
+
+        return y
 
     def distance(self, point):
 
