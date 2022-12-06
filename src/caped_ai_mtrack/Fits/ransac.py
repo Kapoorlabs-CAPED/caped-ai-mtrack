@@ -24,6 +24,7 @@ class Ransac:
         max_skips: float = np.inf,
         stop_n_inliers: float = np.inf,
         stop_residuals_sum: int = 0,
+        stop_score: float = np.inf,
         random_state=None,
     ):
 
@@ -42,6 +43,7 @@ class Ransac:
         self.max_skips = max_skips
         self.stop_residuals_sum = stop_residuals_sum
         self.random_state = random_state
+        self.stop_score = stop_score
 
         y, X = zip(*self.data_points)
         self.y = np.asarray(y)
@@ -131,6 +133,7 @@ class Ransac:
                 continue
 
             # residuals of all data for current random sample model
+            estimator = self.model_class(self.data_points, self.degree)
             estimator.predict(self.X)
             residuals_subset = np.abs(estimator.residuals())
 
@@ -150,8 +153,9 @@ class Ransac:
             y_inlier_subset = self.y[inlier_idxs_subset]
 
             # score of inlier data set
-            score_subset = residuals_subset
-
+            score_subset = np.sum(residuals_subset) / (
+                0.1 + len(residuals_subset)
+            )
             # same number of inliers but worse score -> skip current random
             # sample
             if (
@@ -228,11 +232,11 @@ class Ransac:
 
         self.estimator_ = estimator
         self.inlier_mask_ = inlier_mask_best
-        return self.inlier_mask_
+        return self.inlier_mask_, self.estimator_
 
     def extract_first_ransac_line(self):
 
-        inliers = self.ransac()
+        inliers, estimator = self.ransac()
 
         results_inliers = []
         results_inliers_removed = []
@@ -245,14 +249,17 @@ class Ransac:
             y = self.data_points[i][0]
             results_inliers.append((x, y))
 
-        print(results_inliers)
-        return np.array(results_inliers), np.array(results_inliers_removed)
+        return (
+            np.array(results_inliers),
+            np.array(results_inliers_removed),
+            estimator,
+        )
 
     def extract_multiple_lines(self):
 
         starting_points = self.data_points
+        estimators = []
         for index in range(0, self.iterations):
-            print(index)
             if len(starting_points) <= self.min_samples:
                 print(
                     "No more points available. Terminating search for RANSAC"
@@ -261,7 +268,9 @@ class Ransac:
             (
                 inlier_points,
                 inliers_removed_from_starting,
+                estimator,
             ) = self.extract_first_ransac_line()
+            estimators.append(estimator)
             if len(inlier_points) < self.min_samples:
                 print(
                     "Not sufficeint inliers found %d , threshold=%d, therefore halting"
@@ -269,3 +278,5 @@ class Ransac:
                 )
                 break
             starting_points = inliers_removed_from_starting
+
+        return estimators
