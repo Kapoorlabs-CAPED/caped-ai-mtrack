@@ -1,22 +1,28 @@
-import math
+import warnings
 
 import numpy as np
-from RansacModels import GeneralFunction
+
+from .utils import check_consistent_length
+
+_EPSILON = np.spacing(1)
 
 
 class Ransac:
     def __init__(
         self,
         data_points: list,
-        model_class: GeneralFunction,
+        model_class: type,
         degree: int,
-        min_samples: int,
         max_trials: int,
         iterations: int,
         residual_threshold: float,
         max_distance: float,
+        min_samples: int = None,
+        is_data_valid: bool = None,
         stop_probability: float = 1,
         stop_sample_num: float = np.inf,
+        max_skips: float = np.inf,
+        stop_n_inliers: float = np.inf,
         stop_residuals_sum: int = 0,
         random_state=None,
     ):
@@ -28,138 +34,201 @@ class Ransac:
         self.residual_threshold = residual_threshold
         self.max_trials = max_trials
         self.max_distance = max_distance
+        self.is_data_valid = is_data_valid
         self.iterations = iterations
         self.stop_probability = stop_probability
         self.stop_sample_num = stop_sample_num
+        self.stop_n_inliers = stop_n_inliers
+        self.max_skips = max_skips
         self.stop_residuals_sum = stop_residuals_sum
         self.random_state = random_state
+
+        y, X = zip(*self.data_points)
+        self.y = np.asarray(y)
+        self.X = np.asarray(X)
+
+        check_consistent_length(self.X, self.y)
+
+        if self.min_samples is None:
+
+            self.min_samples = self.X.shape[0] + 1
+        elif 0 < self.min_samples < 1:
+            self.min_samples = np.ceil(self.min_samples * self.X.shape[0])
 
     def _dynamic_max_trials(
         self, n_inliers, n_samples, min_samples, probability
     ):
-        """Determine number trials such that at least one outlier-free subset is
-        sampled for the given inlier/outlier ratio.
-
-        Parameters
-        ----------
-        n_inliers : int
-                Number of inliers in the data.
-        n_samples : int
-                Total number of samples in the data.
-        min_samples : int
-                Minimum number of samples chosen randomly from original data.
-        probability : float
-                Probability (confidence) that one outlier-free sample is generated.
-
-        Returns
-        -------
-        trials : int
-                Number of trials.
-        """
-        if n_inliers == 0:
-            return np.inf
-
-        if probability == 1:
-            return np.inf
-
-        if n_inliers == n_samples:
-            return 1
-
-        nom = math.log(1 - probability)
-        denom = math.log(1 - (n_inliers / n_samples) ** min_samples)
-
-        return int(np.ceil(nom / denom))
+        inlier_ratio = n_inliers / float(n_samples)
+        nom = max(_EPSILON, 1 - probability)
+        denom = max(_EPSILON, 1 - inlier_ratio**min_samples)
+        if nom == 1:
+            return 0
+        if denom == 1:
+            return float("inf")
+        return abs(float(np.ceil(np.log(nom) / np.log(denom))))
 
     def ransac(self):
 
-        best_inlier_num = 0
-        best_inlier_residuals_sum = np.inf
-        best_inliers = []
+        if self.stop_probability < 0 or self.stop_probability > 1:
+            raise ValueError("`stop_probability` must be in range [0, 1].")
 
-        random_state = np.random.default_rng(self.random_state)
+        if self.residual_threshold is None:
+            # MAD (median absolute deviation)
+            residual_threshold = np.median(np.abs(self.y - np.median(self.y)))
+        else:
+            residual_threshold = self.residual_threshold
 
-        num_samples = len(self.data_points[0])
+        n_inliers_best = 1
+        score_best = -np.inf
+        inlier_mask_best = None
+        X_inlier_best = None
+        y_inlier_best = None
 
-        if not (0 < self.min_samples < num_samples):
-            raise ValueError(
-                f"`min_samples` must be in range (0, {num_samples})"
+        # number of data samples
+        n_samples = self.X.shape[0]
+        sample_idxs = np.arange(n_samples)
+        self.n_skips_no_inliers_ = 0
+        self.n_skips_invalid_data_ = 0
+        self.n_skips_invalid_model_ = 0
+        self.n_trials_ = 0
+        max_trials = self.max_trials
+        while self.n_trials_ < max_trials:
+            self.n_trials_ += 1
+
+            if (
+                self.n_skips_no_inliers_
+                + self.n_skips_invalid_data_
+                + self.n_skips_invalid_model_
+            ) > self.max_skips:
+                break
+
+            # choose random sample set
+            random_state = np.random.default_rng(self.random_state)
+            subset_idxs = random_state.choice(
+                n_samples, self.min_samples, replace=False
             )
 
-        if self.residual_threshold < 0:
-            raise ValueError("`residual_threshold` must be greater than zero")
+            X_subset = self.X[subset_idxs]
+            y_subset = self.y[subset_idxs]
 
-        if self.max_trials < 0:
-            raise ValueError("`max_trials` must be greater than zero")
+            # check if random sample set is valid
+            if self.is_data_valid is not None and not self.is_data_valid(
+                X_subset, y_subset
+            ):
+                self.n_skips_invalid_data_ += 1
+                continue
+            samples = [
+                (y_subset[i], X_subset[i]) for i in range(y_subset.shape[0])
+            ]
 
-        # for the first run use initial guess of inliers
-        spl_idxs = random_state.choice(
-            num_samples, self.min_samples, replace=False
-        )
+            # fit model for current random sample set
+            estimator = self.model_class(samples, self.degree)
+            success = estimator.fit()
 
-        # estimate model for current random sample set
-
-        for num_trials in range(self.max_trials):
-            # do sample selection according data pairs
-            samples = [d[spl_idxs] for d in self.data_points]
-
-            # for next iteration choose random sample set and be sure that
-            # no samples repeat
-            spl_idxs = random_state.choice(
-                num_samples, self.min_samples, replace=False
-            )
-
-            self.model = self.model_class(samples, self.degree)
-            success = self.model.fit()
-            # backwards compatibility
+            # check if estimated model is valid
             if success is not None and not success:
+                self.n_skips_invalid_model_ += 1
                 continue
 
-            self.model = self.model_class(self.data_points, self.degree)
-            residuals = np.abs(self.model.residuals())
-            # consensus set / inliers
-            inliers = residuals < self.residual_threshold
-            residuals_sum = residuals.dot(residuals)
+            # residuals of all data for current random sample model
+            estimator.predict(self.X)
+            residuals_subset = np.abs(estimator.residuals())
 
-            # choose as new best model if number of inliers is maximal
-            inliers_count = np.count_nonzero(inliers)
+            # classify data into inliers and outliers
+            inlier_mask_subset = residuals_subset <= residual_threshold
+
+            n_inliers_subset = np.sum(inlier_mask_subset)
+
+            # less inliers -> skip current random sample
+            if n_inliers_subset < n_inliers_best:
+                self.n_skips_no_inliers_ += 1
+                continue
+
+            # extract inlier data set
+            inlier_idxs_subset = sample_idxs[inlier_mask_subset]
+            X_inlier_subset = self.X[inlier_idxs_subset]
+            y_inlier_subset = self.y[inlier_idxs_subset]
+
+            # score of inlier data set
+            score_subset = residuals_subset
+
+            # same number of inliers but worse score -> skip current random
+            # sample
             if (
-                # more inliers
-                inliers_count > best_inlier_num
-                # same number of inliers but less "error" in terms of residuals
-                or (
-                    inliers_count == best_inlier_num
-                    and residuals_sum < best_inlier_residuals_sum
-                )
+                n_inliers_subset == n_inliers_best
+                and score_subset < score_best
             ):
-                best_inlier_num = inliers_count
-                best_inlier_residuals_sum = residuals_sum
-                best_inliers = inliers
-                dynamic_max_trials = self._dynamic_max_trials(
-                    best_inlier_num,
-                    num_samples,
+                continue
+
+            # save current random sample as best sample
+            n_inliers_best = n_inliers_subset
+            score_best = score_subset
+            inlier_mask_best = inlier_mask_subset
+            X_inlier_best = X_inlier_subset
+            y_inlier_best = y_inlier_subset
+
+            max_trials = min(
+                max_trials,
+                self._dynamic_max_trials(
+                    n_inliers_best,
+                    n_samples,
                     self.min_samples,
                     self.stop_probability,
+                ),
+            )
+
+            # break if sufficient number of inliers or score is reached
+            if (
+                n_inliers_best >= self.stop_n_inliers
+                or score_best >= self.stop_score
+            ):
+                break
+
+        # if none of the iterations met the required criteria
+        if inlier_mask_best is None:
+            if (
+                self.n_skips_no_inliers_
+                + self.n_skips_invalid_data_
+                + self.n_skips_invalid_model_
+            ) > self.max_skips:
+                raise ValueError(
+                    "RANSAC skipped more iterations than `max_skips` without"
+                    " finding a valid consensus set. Iterations were skipped"
+                    " because each randomly chosen sub-sample failed the"
+                    " passing criteria. See estimator attributes for"
+                    " diagnostics (n_skips*)."
                 )
-                if (
-                    best_inlier_num >= self.stop_sample_num
-                    or best_inlier_residuals_sum <= self.stop_residuals_sum
-                    or num_trials >= dynamic_max_trials
-                ):
-                    break
+            else:
+                raise ValueError(
+                    "RANSAC could not find a valid consensus set. All"
+                    " `max_trials` iterations were skipped because each"
+                    " randomly chosen sub-sample failed the passing criteria."
+                    " See estimator attributes for diagnostics (n_skips*)."
+                )
+        else:
+            if (
+                self.n_skips_no_inliers_
+                + self.n_skips_invalid_data_
+                + self.n_skips_invalid_model_
+            ) > self.max_skips:
+                warnings.warn(
+                    "RANSAC found a valid consensus set but exited"
+                    " early due to skipping more iterations than"
+                    " `max_skips`. See estimator attributes for"
+                    " diagnostics (n_skips*)."
+                )
 
         # estimate final model using all inliers
-        if any(best_inliers):
-            # select inliers for each data array
-            data_inliers = [d[best_inliers] for d in self.data_points]
-            self.model = self.model_class(data_inliers, self.degree)
+        samples = [
+            (y_inlier_best[i], X_inlier_best[i])
+            for i in range(y_inlier_best.shape[0])
+        ]
+        estimator = self.model_class(samples, self.degree)
+        estimator.fit()
 
-            self.model.fit()
-
-        else:
-            best_inliers = None
-
-        # Define the actual ransac algo
-        return inliers
+        self.estimator_ = estimator
+        self.inlier_mask_ = inlier_mask_best
+        return self.inlier_mask_
 
     def extract_first_ransac_line(self):
 
@@ -175,12 +244,15 @@ class Ransac:
             x = self.data_points[i][1]
             y = self.data_points[i][0]
             results_inliers.append((x, y))
+
+        print(results_inliers)
         return np.array(results_inliers), np.array(results_inliers_removed)
 
-    def extract_multiple_lines_and_save(self):
+    def extract_multiple_lines(self):
 
         starting_points = self.data_points
         for index in range(0, self.iterations):
+            print(index)
             if len(starting_points) <= self.min_samples:
                 print(
                     "No more points available. Terminating search for RANSAC"

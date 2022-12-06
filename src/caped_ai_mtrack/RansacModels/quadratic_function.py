@@ -9,7 +9,7 @@ from .generalized_function import GeneralFunction
 class QuadraticFunction(GeneralFunction):
     def __init__(self, points: list, degree: int):
 
-        super(GeneralFunction, self).__init__(points, degree)
+        super(GeneralFunction, self).__init__()
         self.points = np.asarray(self.points)
         self.num_points = self.get_num_points()
         self.min_num_points = 3
@@ -45,16 +45,22 @@ class QuadraticFunction(GeneralFunction):
             theta[1] += x * y
             theta[2] += y
 
-        delta = np.invert(delta)
+        delta = np.linalg.inv(np.reshape(delta, (3, 3)))
 
         self.coeff[0] = (
-            delta[0] * theta[0] + delta[1] * theta[1] + delta[2] * theta[2]
+            delta[0, 0] * theta[0]
+            + delta[0, 1] * theta[1]
+            + delta[0, 2] * theta[2]
         )
         self.coeff[1] = (
-            delta[3] * theta[0] + delta[4] * theta[1] + delta[5] * theta[2]
+            delta[1, 0] * theta[0]
+            + delta[1, 1] * theta[1]
+            + delta[1, 2] * theta[2]
         )
         self.coeff[2] = (
-            delta[6] * theta[0] + delta[7] * theta[1] + delta[8] * theta[2]
+            delta[2, 0] * theta[0]
+            + delta[2, 1] * theta[1]
+            + delta[2, 2] * theta[2]
         )
 
         return True

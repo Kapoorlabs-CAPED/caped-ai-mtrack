@@ -4,13 +4,14 @@ from .generalized_function import GeneralFunction
 
 
 class LinearFunction(GeneralFunction):
-    def __init__(self, points: list):
+    def __init__(self, points: list, degree: int = 1):
 
-        super(GeneralFunction, self).__init__(points, 1)
-        self.points = np.asarray(self.points)
+        super(GeneralFunction, self).__init__()
+        self.points = points
         self.num_points = self.get_num_points()
         self.min_num_points = 2
         self.coeff = np.zeros(self.min_num_points)
+        self.degree = degree
 
     def fit(self):
 
@@ -34,10 +35,10 @@ class LinearFunction(GeneralFunction):
             theta[0] += xy
             theta[1] += y
 
-        delta = np.invert(delta)
+        delta = np.linalg.inv(np.reshape(delta, (2, 2)))
 
-        self.coeff[0] = delta[0] * theta[0] + delta[1] * theta[1]
-        self.coeff[1] = delta[2] * theta[0] + delta[3] * theta[1]
+        self.coeff[0] = delta[0, 0] * theta[0] + delta[0, 1] * theta[1]
+        self.coeff[1] = delta[1, 0] * theta[0] + delta[1, 1] * theta[1]
 
         return True
 

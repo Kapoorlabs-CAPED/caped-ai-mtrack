@@ -5,7 +5,8 @@ class GeneralFunction:
         self.degree = degree
 
     def get_num_points(self):
-        self.num_points = self.points.shape[0]
+        self.num_points = len(self.points)
+        return self.num_points
 
     def fit(self):
         pass

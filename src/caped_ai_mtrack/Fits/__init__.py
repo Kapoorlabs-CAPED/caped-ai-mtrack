@@ -1,3 +1,4 @@
-from ransac import Ransac
+from .ransac import Ransac
+from .regression import Regression
 
-__all__ = ("Ransac",)
+__all__ = ("Ransac", "Regression")
