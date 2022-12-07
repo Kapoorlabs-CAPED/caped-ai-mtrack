@@ -132,29 +132,30 @@ class QuadraticFunction(GeneralFunction):
                 phi = math.acos(math.sqrt(q * q * 0.25 / (-p * p * p / 27)))
 
             xc1 = 2 * tmp1 * math.cos(phi / 3) - a2 / 3
-            xc2 = 2 * tmp1 * math.cos((phi + 2 * math.PI) / 3) - a2 / 3
-            xc3 = 2 * tmp1 * math.cos((phi + 4 * math.PI) / 3) - a2 / 3
+            xc2 = 2 * tmp1 * math.cos((phi + 2 * math.pi) / 3) - a2 / 3
+            xc3 = 2 * tmp1 * math.cos((phi + 4 * math.pi) / 3) - a2 / 3
 
-        returndistA = NewtonRaphson._distance(
+        nr = NewtonRaphson(self.degree, self.coeff)
+        returndistA = nr._distance(
             x1,
             y1,
             xc1,
             self.coeff[2] + self.coeff[1] * xc1 + self.coeff[0] * xc1 * xc1,
         )
-        returndistB = NewtonRaphson._distance(
+        returndistB = nr._distance(
             x1,
             y1,
             xc2,
             self.coeff[2] + self.coeff[1] * xc2 + self.coeff[0] * xc2 * xc2,
         )
-        returndistC = NewtonRaphson._distance(
+        returndistC = nr._distance(
             x1,
             y1,
             xc3,
             self.coeff[2] + self.coeff[1] * xc3 + self.coeff[0] * xc3 * xc3,
         )
 
-        return math.min(returndistA, math.min(returndistB, returndistC))
+        return min(returndistA, min(returndistB, returndistC))
 
     def residuals(self):
 

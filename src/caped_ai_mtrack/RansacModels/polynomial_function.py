@@ -16,7 +16,7 @@ class PolynomialFunction(GeneralFunction):
 
     def fit(self):
 
-        vandermonde = np.zeros((self.points, self.degree + 1))
+        vandermonde = np.zeros((self.points.shape[0], self.degree + 1))
         y = np.zeros(self.num_points)
         i = 0
         for k in range(self.num_points):

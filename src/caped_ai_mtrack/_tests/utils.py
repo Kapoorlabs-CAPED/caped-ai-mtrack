@@ -1,6 +1,6 @@
 import os
 
-import matplotlib.pyplot as plt
+import numpy as np
 
 
 def random_points(num_points: int):
@@ -20,15 +20,16 @@ def random_points(num_points: int):
     return pointlist
 
 
-def plot_points(pointlist: list):
+def plot_points(
+    plt, yarray: np.ndarray, xarray: np.ndarray, save_name="", color="ro"
+):
 
-    yarray, xarray = zip(*pointlist)
-    plt.plot(xarray, yarray, "ro")
+    plt.plot(xarray, yarray, color)
     plt.title("Example kymograph")
     plt.xlabel("x")
     plt.ylabel("y")
 
-    plt.savefig(root_dir())
+    plt.savefig(root_dir() + save_name)
 
 
 def root_dir():

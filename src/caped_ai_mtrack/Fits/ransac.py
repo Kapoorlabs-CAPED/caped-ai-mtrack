@@ -45,6 +45,7 @@ class Ransac:
         self.random_state = random_state
         self.stop_score = stop_score
 
+        self._sortlist()
         y, X = zip(*self.data_points)
         self.y = np.asarray(y)
         self.X = np.asarray(X)
@@ -69,7 +70,19 @@ class Ransac:
             return float("inf")
         return abs(float(np.ceil(np.log(nom) / np.log(denom))))
 
-    def ransac(self):
+    def _sortlist(self):
+
+        self.data_points = sorted(self.data_points, key=lambda x: x[1])
+
+    def ransac(self, starting_points):
+
+        if isinstance(starting_points, np.ndarray):
+            starting_points = starting_points.tolist()
+
+        print(len(starting_points))
+        y, X = zip(*starting_points)
+        self.y = np.asarray(y)
+        self.X = np.asarray(X)
 
         if self.stop_probability < 0 or self.stop_probability > 1:
             raise ValueError("`stop_probability` must be in range [0, 1].")
@@ -132,7 +145,7 @@ class Ransac:
                 self.n_skips_invalid_model_ += 1
                 continue
 
-            estimator = self.model_class(self.data_points, self.degree)
+            estimator = self.model_class(starting_points, self.degree)
             success = estimator.fit()
             residuals_subset = np.abs(estimator.residuals())
             # classify data into inliers and outliers
@@ -225,24 +238,23 @@ class Ransac:
         ]
         estimator = self.model_class(samples, self.degree)
         estimator.fit()
-
         self.estimator_ = estimator
         self.inlier_mask_ = inlier_mask_best
         return self.inlier_mask_, self.estimator_
 
-    def extract_first_ransac_line(self):
+    def extract_first_ransac_line(self, starting_points):
 
-        inliers, estimator = self.ransac()
+        inliers, estimator = self.ransac(starting_points)
 
         results_inliers = []
         results_inliers_removed = []
-        for i in range(0, len(self.data_points)):
+        for i in range(0, len(starting_points)):
             if not inliers[i]:
                 # Not an inlier
-                results_inliers_removed.append(self.data_points[i])
+                results_inliers_removed.append(starting_points[i])
                 continue
-            x = self.data_points[i][1]
-            y = self.data_points[i][0]
+            x = starting_points[i][1]
+            y = starting_points[i][0]
             results_inliers.append((x, y))
 
         return (
@@ -257,7 +269,6 @@ class Ransac:
         estimators = []
         for index in range(0, self.iterations):
 
-            print(len(starting_points), self.min_samples)
             if len(starting_points) <= self.min_samples:
                 print(
                     "No more points available. Terminating search for RANSAC"
@@ -267,19 +278,14 @@ class Ransac:
                 inlier_points,
                 inliers_removed_from_starting,
                 estimator,
-            ) = self.extract_first_ransac_line()
-            print(
-                estimator.get_coefficients(0),
-                "",
-                estimator.get_coefficients(1),
-                index,
-            )
+            ) = self.extract_first_ransac_line(starting_points)
             estimators.append(estimator)
-            if len(inlier_points) < self.min_samples:
+            if len(starting_points) < self.min_samples:
                 print(
                     "Not sufficeint inliers found %d , threshold=%d, therefore halting"
-                    % (len(inlier_points), self.min_samples)
+                    % (len(starting_points), self.min_samples)
                 )
+
                 break
             starting_points = inliers_removed_from_starting
 

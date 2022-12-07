@@ -22,7 +22,10 @@ class NewtonRaphson:
     def _updatePowCache(self, xc: float):
 
         for j in range(-3, self.degree):
-            self.powcache[j + 3] = math.pow(xc, j)
+            if j > 0:
+                self.powcache[j + 3] = math.pow(xc, j)
+            else:
+                self.powcache[j + 3] = math.pow(1.0 / xc, -j)
 
     def run(self, x, y):
 
@@ -46,7 +49,7 @@ class NewtonRaphson:
             )
 
             iteration = iteration + 1
-            self._iterate(self.xc, dmin, dmindiff, dminsecdiff)
+            self._iterate(dmin, dmindiff, dminsecdiff)
             if math.isnan(self.xcnew):
                 self.xcnew = self.xc
             self.delpolyfuncdiff = 0
