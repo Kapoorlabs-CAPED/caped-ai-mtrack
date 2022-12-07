@@ -3,6 +3,17 @@ import os
 import numpy as np
 
 
+def quadratic_points(num_points: int):
+
+    pointlist = []
+
+    for i in range(num_points):
+
+        pointlist.append((i * i, i))
+
+    return pointlist
+
+
 def random_points(num_points: int):
 
     pointlist = []
@@ -21,13 +32,18 @@ def random_points(num_points: int):
 
 
 def plot_points(
-    plt, yarray: np.ndarray, xarray: np.ndarray, save_name="", color="ro"
+    plt,
+    yarray: np.ndarray,
+    ypred: np.ndarray,
+    xarray: np.ndarray,
+    save_name="",
 ):
 
-    plt.plot(xarray, yarray, color)
+    plt.plot(xarray, yarray, xarray, ypred)
     plt.title("Example kymograph")
     plt.xlabel("x")
     plt.ylabel("y")
+    plt.legend(["ransac", "original"])
 
     plt.savefig(root_dir() + save_name)
 

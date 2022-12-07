@@ -45,7 +45,6 @@ class Ransac:
         self.random_state = random_state
         self.stop_score = stop_score
 
-        self._sortlist()
         y, X = zip(*self.data_points)
         self.y = np.asarray(y)
         self.X = np.asarray(X)
@@ -70,16 +69,11 @@ class Ransac:
             return float("inf")
         return abs(float(np.ceil(np.log(nom) / np.log(denom))))
 
-    def _sortlist(self):
-
-        self.data_points = sorted(self.data_points, key=lambda x: x[1])
-
     def ransac(self, starting_points):
 
         if isinstance(starting_points, np.ndarray):
             starting_points = starting_points.tolist()
 
-        print(len(starting_points))
         y, X = zip(*starting_points)
         self.y = np.asarray(y)
         self.X = np.asarray(X)
@@ -150,7 +144,6 @@ class Ransac:
             residuals_subset = np.abs(estimator.residuals())
             # classify data into inliers and outliers
             inlier_mask_subset = residuals_subset <= residual_threshold
-
             n_inliers_subset = np.sum(inlier_mask_subset)
 
             # less inliers -> skip current random sample
@@ -211,6 +204,7 @@ class Ransac:
                     " passing criteria. See estimator attributes for"
                     " diagnostics (n_skips*)."
                 )
+
             else:
                 raise ValueError(
                     "RANSAC could not find a valid consensus set. All"
@@ -236,6 +230,7 @@ class Ransac:
             (y_inlier_best[i], X_inlier_best[i])
             for i in range(y_inlier_best.shape[0])
         ]
+        print(samples)
         estimator = self.model_class(samples, self.degree)
         estimator.fit()
         self.estimator_ = estimator
@@ -244,6 +239,7 @@ class Ransac:
 
     def extract_first_ransac_line(self, starting_points):
 
+        print("Starting Points", len(starting_points))
         inliers, estimator = self.ransac(starting_points)
 
         results_inliers = []

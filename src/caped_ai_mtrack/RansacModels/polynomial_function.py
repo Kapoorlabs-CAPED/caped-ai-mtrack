@@ -11,29 +11,46 @@ class PolynomialFunction(GeneralFunction):
         self.points = np.asarray(self.points)
         self.num_points = self.get_num_points()
 
-        self.coeff = np.zeros(degree + 1)
-        self.min_num_points = degree + 1
+        self.coeff = np.zeros(degree)
+        self.min_num_points = degree
 
     def fit(self):
 
-        vandermonde = np.zeros((self.points.shape[0], self.degree + 1))
-        y = np.zeros(self.num_points)
-        i = 0
-        for k in range(self.num_points):
-            point = self.points[k]
+        delta = np.zeros((self.degree, self.degree))
+        tetha = np.zeros(self.degree)
+        powCache = np.zeros(self.degree * 2)
+        for i in range(self.points.shape[0]):
+
+            point = self.points[i]
+            y = point[0]
             x = point[1]
-            for j in range(self.degree + 1):
-                vandermonde[i, j] = x**j
-            y[i] = point[0]
-            i = i + 1
 
-        X = np.copy(vandermonde)
-        Y = np.zeros((self.num_points, self.num_points))
-        for k in range(Y.shape[0]):
-            Y[k, :] = y
+            power = 1
+            for d in range(powCache.shape[0]):
 
-        Q, R = np.linalg.qr(X)
-        self.coefficients = np.flip(np.linalg.inv(R).dot(Q.T.dot(y)))
+                power *= x
+                powCache[powCache.shape[0] - d - 1] = power
+
+            for r in range(self.degree):
+                for c in range(self.degree):
+                    delta[r, c] += powCache[r + c]
+
+            mulY = y
+
+            for d in range(self.degree):
+
+                tetha[self.degree - d - 1] += mulY
+                mulY *= x
+        determinant = np.linalg.det(delta)
+        if abs(determinant) > 0:
+
+            deltainv = np.linalg.inv(delta)
+            for d in range(self.degree):
+
+                for i in range(self.degree):
+                    self.coeff[self.degree - d - 1] += (
+                        deltainv[d, i] * tetha[i]
+                    )
 
         return True
 
