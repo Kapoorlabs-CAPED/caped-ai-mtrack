@@ -6,7 +6,7 @@ from .generalized_function import GeneralFunction
 class LinearFunction(GeneralFunction):
     def __init__(self, points: list, degree: int = 1):
 
-        super(GeneralFunction, self).__init__()
+        super().__init__(points, degree)
         self.points = points
         self.num_points = self.get_num_points()
         self.min_num_points = 2

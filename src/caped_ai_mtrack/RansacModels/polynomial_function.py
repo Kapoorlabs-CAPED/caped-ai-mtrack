@@ -7,7 +7,7 @@ from .generalized_function import GeneralFunction
 class PolynomialFunction(GeneralFunction):
     def __init__(self, points: list, degree: int):
 
-        super(GeneralFunction, self).__init__()
+        super().__init__(points, degree)
         self.points = np.asarray(self.points)
         self.num_points = self.get_num_points()
 
