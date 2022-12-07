@@ -94,7 +94,7 @@ class QuadraticFunction(GeneralFunction):
         p = (3 * a1 - a2 * a2) / 3
         q = (-9 * a1 * a2 + 27 * a0 + 2 * a2 * a2 * a2) / 27
 
-        tmp1 = np.sqrt(-p / 3)
+        tmp1 = np.sqrt(abs(-p) / 3)
         tmp2 = q * q / 4 + p * p * p / 27
 
         if tmp2 > 0:
