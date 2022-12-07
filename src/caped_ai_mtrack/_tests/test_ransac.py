@@ -8,7 +8,7 @@ from caped_ai_mtrack.RansacModels import LinearFunction
 @pytest.mark.parametrize("num_points", [250])
 @pytest.mark.parametrize("model", [LinearFunction])
 @pytest.mark.parametrize("degree", [1])
-@pytest.mark.parametrize("min_samples", [None, 10, 20])
+@pytest.mark.parametrize("min_samples", [10, 20])
 def test_ransac_models(num_points, min_samples, model, degree):
 
     pointlist = random_points(num_points)
@@ -38,4 +38,4 @@ def test_ransac_models(num_points, min_samples, model, degree):
 
 if __name__ == "__main__":
 
-    test_ransac_models(250, 250, LinearFunction, 1)
+    test_ransac_models(250, 20, LinearFunction, 1)

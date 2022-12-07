@@ -126,17 +126,15 @@ class Ransac:
             # fit model for current random sample set
             estimator = self.model_class(samples, self.degree)
             success = estimator.fit()
-
+            residuals_subset = np.abs(estimator.residuals())
             # check if estimated model is valid
             if success is not None and not success:
                 self.n_skips_invalid_model_ += 1
                 continue
 
-            # residuals of all data for current random sample model
             estimator = self.model_class(self.data_points, self.degree)
-            estimator.predict(self.X)
+            success = estimator.fit()
             residuals_subset = np.abs(estimator.residuals())
-
             # classify data into inliers and outliers
             inlier_mask_subset = residuals_subset <= residual_threshold
 
@@ -153,9 +151,7 @@ class Ransac:
             y_inlier_subset = self.y[inlier_idxs_subset]
 
             # score of inlier data set
-            score_subset = np.sum(residuals_subset) / (
-                0.1 + len(residuals_subset)
-            )
+            score_subset = np.sum(residuals_subset) / (len(residuals_subset))
             # same number of inliers but worse score -> skip current random
             # sample
             if (
@@ -241,7 +237,7 @@ class Ransac:
         results_inliers = []
         results_inliers_removed = []
         for i in range(0, len(self.data_points)):
-            if inliers[i] is False:
+            if not inliers[i]:
                 # Not an inlier
                 results_inliers_removed.append(self.data_points[i])
                 continue
@@ -260,6 +256,8 @@ class Ransac:
         starting_points = self.data_points
         estimators = []
         for index in range(0, self.iterations):
+
+            print(len(starting_points), self.min_samples)
             if len(starting_points) <= self.min_samples:
                 print(
                     "No more points available. Terminating search for RANSAC"
@@ -270,6 +268,12 @@ class Ransac:
                 inliers_removed_from_starting,
                 estimator,
             ) = self.extract_first_ransac_line()
+            print(
+                estimator.get_coefficients(0),
+                "",
+                estimator.get_coefficients(1),
+                index,
+            )
             estimators.append(estimator)
             if len(inlier_points) < self.min_samples:
                 print(
