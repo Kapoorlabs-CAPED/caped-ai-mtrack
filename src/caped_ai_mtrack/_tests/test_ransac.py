@@ -6,6 +6,7 @@ from caped_ai_mtrack._tests.utils import (
     plot_points,
     quadratic_points,
     random_points,
+    root_dir,
 )
 from caped_ai_mtrack.Fits import Ransac
 from caped_ai_mtrack.RansacModels import LinearFunction, QuadraticFunction
@@ -59,7 +60,7 @@ def linear_points_ransac(num_points, min_samples, model, degree, save_name=""):
         min_samples=min_samples,
         max_trials=10000,
         iterations=10,
-        residual_threshold=5,
+        residual_threshold=2,
         max_distance=10,
     )
     estimators = ransac_line.extract_multiple_lines()
@@ -69,6 +70,20 @@ def linear_points_ransac(num_points, min_samples, model, degree, save_name=""):
         for x in range(np.asarray(xarray).shape[0]):
             ypredict.append(estimator.predict(x))
         plot_points(plt, ypredict, yarray, xarray, save_name=save_name)
+
+
+@pytest.mark.parametrize("num_points", [250])
+def draw_linear_points(num_points):
+
+    plt.cla()
+    pointlist = random_points(num_points)
+    yarray, xarray = zip(*pointlist)
+    plt.plot(xarray, yarray)
+    plt.title("GT")
+    plt.xlabel("x")
+    plt.ylabel("y")
+
+    plt.savefig(root_dir() + "GT")
 
 
 if __name__ == "__main__":

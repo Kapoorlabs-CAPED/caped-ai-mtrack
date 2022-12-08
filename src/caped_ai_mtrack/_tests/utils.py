@@ -40,10 +40,9 @@ def plot_points(
 ):
 
     plt.plot(xarray, yarray, xarray, ypred)
-    plt.title("Example kymograph")
+    plt.title("Sklearn Ransac")
     plt.xlabel("x")
     plt.ylabel("y")
-    plt.legend(["ransac", "original"])
 
     plt.savefig(root_dir() + save_name)
 
