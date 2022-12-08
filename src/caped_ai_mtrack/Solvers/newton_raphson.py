@@ -4,48 +4,46 @@ import numpy as np
 
 
 class NewtonRaphson:
-    def __init__(self, degree: float, coeff: np.ndarray):
+    def __init__(
+        self, degree: float, coeff: np.ndarray, x_1: float, y_1: float
+    ):
 
         self.degree = degree
         self.coeff = coeff
-        self.rndx = np.random.random()
-        self.xc = np.random.random()
-        self.xcnew = np.random.random() * np.random.random()
-        self.powcache = np.zeros(degree)
-        self.polyfunc = 0
-        self.polyfuncdiff = 0
-        self.delpolyfuncdiff = 0
-        self.secdelpolyfuncdiff = 0
-        self.MAX_ITER = 1000
-        self.MIN_CHANGE = 1.0e-1
+        self.x_1 = x_1
+        self.y_1 = y_1
+        self.xc = abs(np.random.random())
+        self.maxiter = 100
+        self.delta = 0.01
 
-    def _updatePowCache(self, xc: float):
+    def func(self, x):
 
-        for j in range(self.degree):
+        return (
+            (self.polyfunc - self.y_1) * self.polyfuncdiff + self.xc - self.x_1
+        )
 
-            self.powcache[j] = math.pow(xc, self.degree - j)
+    def derivfunc(self, x):
 
-    def run(self, x, y):
+        return (
+            (self.polyfunc - self.y_1) * self.delpolyfuncdiff
+            + self.polyfuncdiff * self.polyfuncdiff
+            + 1
+        )
 
-        self._updatePowCache(self.xc)
+    def run(self):
+
         self._computeFunctions()
-        iteration = 0
 
-        while abs(self.xcnew - self.xc) > self.MIN_CHANGE:
+        self.iter = 0
+        while abs(self.func(self.xc)) > self.delta:
+            self.iter = self.iter + 1
+            self.xcnew = self.xc - (
+                self.func(self.xc) / self.derivfunc(self.xc)
+            )  # Newton-Raphson equation
 
             self.xc = self.xcnew
-
-            iteration = iteration + 1
-
-            self._iterate(self.polyfunc, self.polyfuncdiff)
-
-            if math.isnan(self.xcnew):
-                self.xcnew = self.xc
-
-            self._updatePowCache(self.xcnew)
             self._computeFunctions()
-
-            if iteration >= self.MAX_ITER:
+            if self.iter > self.maxiter:
                 break
 
         self.polyfunc = 0
@@ -53,7 +51,11 @@ class NewtonRaphson:
             self.polyfunc = self.polyfunc + self.coeff[j] * math.pow(
                 self.xc, self.degree - j
             )
-        return self._distance(x, y, self.xc, self.polyfunc)
+        mindistance = self._distance(
+            self.x_1, self.y_1, self.xc, self.polyfunc
+        )
+
+        return mindistance
 
     def _distance(self, minx, miny, maxx, maxy):
 
@@ -66,14 +68,23 @@ class NewtonRaphson:
     def _computeFunctions(self):
 
         self.polyfunc = 0
+        self.polyfuncdiff = 0
+        self.delpolyfuncdiff = 0
         for j in range(0, self.degree):
 
-            c = self.coeff[j]
-            self.polyfunc = self.polyfunc + c * self.powcache[j]
+            if self.degree - j > 0:
 
-            c = c * (self.degree - j)
-            self.polyfuncdiff = self.polyfuncdiff + c * self.powcache[j - 1]
+                c = self.coeff[j]
+                self.polyfunc = self.polyfunc + c * math.pow(
+                    self.xc, self.degree - j
+                )
 
-    def _iterate(self, function, functionderiv):
+                c = c * (self.degree - j)
+                self.polyfuncdiff = self.polyfuncdiff + c * math.pow(
+                    self.xc, self.degree - j - 1
+                )
 
-        self.xcnew = self.xc - (function / functionderiv)
+                c = c * (self.degree - j - 1)
+                self.delpolyfuncdiff = self.delpolyfuncdiff + c * math.pow(
+                    self.xc, self.degree - j - 2
+                )

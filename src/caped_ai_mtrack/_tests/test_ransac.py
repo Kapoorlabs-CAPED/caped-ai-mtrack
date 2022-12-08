@@ -29,8 +29,8 @@ def test_ransac_models(num_points, min_samples, model, degree, save_name=""):
         degree,
         min_samples=min_samples,
         max_trials=1000,
-        iterations=1,
-        residual_threshold=50,
+        iterations=3,
+        residual_threshold=15,
         max_distance=10,
     )
     estimators = ransac_line.extract_multiple_lines()
@@ -44,6 +44,6 @@ def test_ransac_models(num_points, min_samples, model, degree, save_name=""):
 
 if __name__ == "__main__":
 
-    test_ransac_models(250, 2, LinearFunction, 2, save_name="_linear")
-    test_ransac_models(250, 3, QuadraticFunction, 3, save_name="_quadratic")
+    # test_ransac_models(250, 2, LinearFunction, 2, save_name="_linear")
+    # test_ransac_models(250, 3, QuadraticFunction, 3, save_name="_quadratic")
     test_ransac_models(250, 3, PolynomialFunction, 3, save_name="_polynomial")

@@ -2,7 +2,6 @@ import math
 
 import numpy as np
 
-from ..Solvers import NewtonRaphson
 from .generalized_function import GeneralFunction
 
 
@@ -135,20 +134,19 @@ class QuadraticFunction(GeneralFunction):
             xc2 = 2 * tmp1 * math.cos((phi + 2 * math.pi) / 3) - a2 / 3
             xc3 = 2 * tmp1 * math.cos((phi + 4 * math.pi) / 3) - a2 / 3
 
-        nr = NewtonRaphson(self.degree, self.coeff)
-        returndistA = nr._distance(
+        returndistA = self._distance(
             x1,
             y1,
             xc1,
             self.coeff[2] + self.coeff[1] * xc1 + self.coeff[0] * xc1 * xc1,
         )
-        returndistB = nr._distance(
+        returndistB = self._distance(
             x1,
             y1,
             xc2,
             self.coeff[2] + self.coeff[1] * xc2 + self.coeff[0] * xc2 * xc2,
         )
-        returndistC = nr._distance(
+        returndistC = self._distance(
             x1,
             y1,
             xc3,
@@ -156,6 +154,14 @@ class QuadraticFunction(GeneralFunction):
         )
 
         return min(returndistA, min(returndistB, returndistC))
+
+    def _distance(self, minx, miny, maxx, maxy):
+
+        distance = (maxx - minx) * (maxx - minx) + (maxy - miny) * (
+            maxy - miny
+        )
+
+        return np.sqrt(distance)
 
     def residuals(self):
 

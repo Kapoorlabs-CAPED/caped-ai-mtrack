@@ -18,7 +18,8 @@ class PolynomialFunction(GeneralFunction):
 
         delta = np.zeros((self.degree, self.degree))
         tetha = np.zeros(self.degree)
-        powCache = np.zeros(self.degree * 2)
+        powCache = np.zeros(self.degree * self.degree)
+        powCache[powCache.shape[0] - 1] = 1
         for i in range(self.points.shape[0]):
 
             point = self.points[i]
@@ -26,7 +27,7 @@ class PolynomialFunction(GeneralFunction):
             x = point[1]
 
             power = 1
-            for d in range(powCache.shape[0]):
+            for d in range(1, powCache.shape[0]):
 
                 power *= x
                 powCache[powCache.shape[0] - d - 1] = power
@@ -41,16 +42,11 @@ class PolynomialFunction(GeneralFunction):
 
                 tetha[self.degree - d - 1] += mulY
                 mulY *= x
-        determinant = np.linalg.det(delta)
-        if abs(determinant) > 0:
+        deltainv = np.linalg.pinv(delta)
+        for d in range(self.degree):
 
-            deltainv = np.linalg.inv(delta)
-            for d in range(self.degree):
-
-                for i in range(self.degree):
-                    self.coeff[self.degree - d - 1] += (
-                        deltainv[d, i] * tetha[i]
-                    )
+            for i in range(self.degree):
+                self.coeff[d] += deltainv[d, i] * tetha[i]
 
         return True
 
@@ -70,7 +66,7 @@ class PolynomialFunction(GeneralFunction):
         x1 = point[1]
         y1 = point[0]
 
-        return NewtonRaphson(self.degree, self.coeff).run(x1, y1)
+        return NewtonRaphson(self.degree, self.coeff, x1, y1).run()
 
     def residuals(self):
 
