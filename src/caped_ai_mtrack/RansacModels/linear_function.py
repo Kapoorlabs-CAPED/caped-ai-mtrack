@@ -35,7 +35,7 @@ class LinearFunction(GeneralFunction):
             theta[0] += xy
             theta[1] += y
 
-        delta = np.linalg.inv(np.reshape(delta, (2, 2)))
+        delta = np.linalg.pinv(np.reshape(delta, (2, 2)))
 
         self.coeff[0] = delta[0, 0] * theta[0] + delta[0, 1] * theta[1]
         self.coeff[1] = delta[1, 0] * theta[0] + delta[1, 1] * theta[1]
@@ -61,13 +61,13 @@ class LinearFunction(GeneralFunction):
             1 + self.coeff[0] * self.coeff[0]
         )
 
-    def residuals(self):
+    def residuals(self, samples):
 
         shortest_distances = []
+        num_points = len(samples)
+        for i in range(num_points):
 
-        for i in range(self.num_points):
-
-            point = self.points[i]
+            point = samples[i]
 
             shortest_distances.append(self.distance(point))
 

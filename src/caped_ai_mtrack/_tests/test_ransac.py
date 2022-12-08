@@ -14,7 +14,7 @@ from caped_ai_mtrack.RansacModels import LinearFunction, QuadraticFunction
 @pytest.mark.parametrize("num_points", [250])
 @pytest.mark.parametrize("model", [LinearFunction, QuadraticFunction])
 @pytest.mark.parametrize("degree", [2, 3])
-@pytest.mark.parametrize("min_samples", [10, 20])
+@pytest.mark.parametrize("min_samples", [2, 2])
 def quadratic_points_ransac(
     num_points, min_samples, model, degree, save_name=""
 ):
@@ -28,9 +28,9 @@ def quadratic_points_ransac(
         model,
         degree,
         min_samples=min_samples,
-        max_trials=1000,
-        iterations=3,
-        residual_threshold=15,
+        max_trials=10000,
+        iterations=10,
+        residual_threshold=50,
         max_distance=10,
     )
     estimators = ransac_line.extract_multiple_lines()
@@ -45,7 +45,7 @@ def quadratic_points_ransac(
 @pytest.mark.parametrize("num_points", [250])
 @pytest.mark.parametrize("model", [LinearFunction, QuadraticFunction])
 @pytest.mark.parametrize("degree", [2, 3])
-@pytest.mark.parametrize("min_samples", [10, 20])
+@pytest.mark.parametrize("min_samples", [4, 10])
 def linear_points_ransac(num_points, min_samples, model, degree, save_name=""):
 
     plt.cla()
@@ -57,9 +57,9 @@ def linear_points_ransac(num_points, min_samples, model, degree, save_name=""):
         model,
         degree,
         min_samples=min_samples,
-        max_trials=1000,
-        iterations=3,
-        residual_threshold=15,
+        max_trials=10000,
+        iterations=10,
+        residual_threshold=5,
         max_distance=10,
     )
     estimators = ransac_line.extract_multiple_lines()
@@ -73,17 +73,17 @@ def linear_points_ransac(num_points, min_samples, model, degree, save_name=""):
 
 if __name__ == "__main__":
 
-    quadratic_points_ransac(
-        250, 2, LinearFunction, 2, save_name="_linear_quadratic"
-    )
-    plt.cla()
-    quadratic_points_ransac(
-        250, 3, QuadraticFunction, 3, save_name="_quadratic_quadratic"
-    )
+    # quadratic_points_ransac(
+    #    250,3, LinearFunction, 2, save_name="_linear_quadratic"
+    # )
+    #    plt.cla()
+    #   quadratic_points_ransac(
+    #      250, 3, QuadraticFunction, 3, save_name="_quadratic_quadratic"
+    # )
 
     plt.cla()
-    linear_points_ransac(250, 2, LinearFunction, 2, save_name="_linear_linear")
-    plt.cla()
-    linear_points_ransac(
-        250, 3, QuadraticFunction, 3, save_name="_quadratic_linear"
-    )
+    linear_points_ransac(250, 3, LinearFunction, 3, save_name="_linear_linear")
+    # plt.cla()
+    # linear_points_ransac(
+    #   250, 2, QuadraticFunction, 3, save_name="_quadratic_linear"
+    # )

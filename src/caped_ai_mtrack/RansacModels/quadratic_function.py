@@ -163,13 +163,13 @@ class QuadraticFunction(GeneralFunction):
 
         return np.sqrt(distance)
 
-    def residuals(self):
+    def residuals(self, samples):
 
         shortest_distances = []
+        num_points = len(samples)
+        for i in range(num_points):
 
-        for i in range(self.num_points):
-
-            point = self.points[i]
+            point = samples[i]
 
             shortest_distances.append(self.distance(point))
 
