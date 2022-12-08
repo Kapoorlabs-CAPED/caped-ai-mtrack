@@ -1,6 +1,57 @@
 import numbers
+import os
 
+import matplotlib.pyplot as plt
 import numpy as np
+from scipy import spatial
+
+
+def root_dir():
+    return os.path.dirname(os.path.abspath(__file__))
+
+
+def clean_ransac(estimators, data):
+
+    if isinstance(data, list):
+        data = np.asarray(data)
+    datalist = np.copy(data)
+    yarray, xarray = zip(*datalist.tolist())
+    tree = spatial.cKDTree(data)
+
+    segments = []
+
+    for estimator in estimators:
+
+        ypredict = []
+        xpredict = []
+        for x in range(np.asarray(xarray).shape[0]):
+            y = estimator.predict(x)
+
+            point = (y, x)
+
+            distance, nearest_location = tree.query(point)
+            nearest_location = (
+                int(data[nearest_location][0]),
+                int(data[nearest_location][1]),
+            )
+            if distance <= 4:
+                ypredict.append(y)
+                xpredict.append(x)
+        segments.append([ypredict, xpredict])
+    return segments
+
+
+def plot_ransac_gt(segments, yarray, xarray, save_name=""):
+
+    plt.cla()
+    plt.plot(xarray, yarray)
+    for ypredict, xpredict in segments:
+        plt.plot(xpredict, ypredict)
+    plt.title("MTrack Ransac")
+    plt.xlabel("x")
+    plt.ylabel("y")
+
+    plt.savefig(root_dir() + save_name)
 
 
 def check_consistent_length(*arrays):

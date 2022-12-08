@@ -3,7 +3,7 @@ import warnings
 
 import numpy as np
 
-from .utils import check_consistent_length
+from .utils import check_consistent_length, clean_ransac, plot_ransac_gt
 
 _EPSILON = np.spacing(1)
 
@@ -206,8 +206,7 @@ class Ransac:
     def extract_first_ransac_line(self, starting_points):
 
         ransac_result = self.ransac(starting_points)
-        # ransac_result = ransac(np.asarray(starting_points), LineModelND, min_samples=self.min_samples,
-        # residual_threshold=self.max_distance, max_trials=self.max_trials)
+
         if ransac_result is not None:
             estimator, inliers = ransac_result
             results_inliers = []
@@ -230,6 +229,8 @@ class Ransac:
     def extract_multiple_lines(self):
 
         starting_points = self.data_points
+        data_points_list = np.copy(self.data_points)
+        data_points_list = data_points_list.tolist()
         estimators = []
         for index in range(0, self.iterations):
 
@@ -257,5 +258,9 @@ class Ransac:
 
                 break
             starting_points = inliers_removed_from_starting
+
+        segments = clean_ransac(estimators, self.data_points)
+        yarray, xarray = zip(*data_points_list)
+        plot_ransac_gt(segments, yarray, xarray, save_name="sklearn")
 
         return estimators
