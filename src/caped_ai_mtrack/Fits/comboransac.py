@@ -2,6 +2,7 @@ import numpy as np
 
 from ..RansacModels import LinearFunction, QuadraticFunction
 from .ransac import Ransac
+from .utils import clean_ransac, plot_ransac_gt
 
 
 class ComboRansac:
@@ -134,3 +135,20 @@ class ComboRansac:
 
             estimators.append(estimator_linear)
             estimator_inliers.append(inlier_points_linear)
+            if len(starting_points) < self.min_samples:
+                print(
+                    "Not sufficeint inliers found %d , threshold=%d, therefore halting"
+                    % (len(starting_points), self.min_samples)
+                )
+
+                break
+            starting_points = (
+                inliers_removed_from_starting_quadratic
+                + inliers_removed_from_starting_linear
+            )
+
+        segments = clean_ransac(estimators, estimator_inliers)
+        yarray, xarray = zip(*data_points_list)
+        plot_ransac_gt(segments, yarray, xarray, save_name="caped-ai-mtrack")
+
+        return estimators
