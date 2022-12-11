@@ -40,7 +40,7 @@ def plot_points(
 ):
 
     plt.plot(xarray, yarray, xarray, ypred)
-    plt.title("Sklearn Ransac")
+    plt.title("MTrack Ransac")
     plt.xlabel("x")
     plt.ylabel("y")
 

@@ -60,7 +60,7 @@ def linear_points_ransac(num_points, min_samples, model, degree, save_name=""):
         min_samples=min_samples,
         max_trials=10000,
         iterations=10,
-        residual_threshold=2,
+        residual_threshold=0.1,
         max_distance=10,
     )
     estimators = ransac_line.extract_multiple_lines()

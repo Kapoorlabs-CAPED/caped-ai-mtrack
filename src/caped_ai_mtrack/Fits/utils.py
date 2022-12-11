@@ -3,40 +3,32 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy import spatial
 
 
 def root_dir():
     return os.path.dirname(os.path.abspath(__file__))
 
 
-def clean_ransac(estimators, data):
-
-    if isinstance(data, list):
-        data = np.asarray(data)
-    datalist = np.copy(data)
-    yarray, xarray = zip(*datalist.tolist())
-    tree = spatial.cKDTree(data)
+def clean_ransac(estimators, estimator_inliers):
 
     segments = []
 
-    for estimator in estimators:
+    for i in range(len(estimators)):
+
+        estimator = estimators[i]
+        estimator_inlier = estimator_inliers[i]
+        estimator_inliers_list = np.copy(estimator_inlier)
+        yarray, xarray = zip(*estimator_inliers_list.tolist())
+        yarray = np.asarray(yarray)
+        xarray = np.asarray(xarray)
 
         ypredict = []
         xpredict = []
-        for x in range(np.asarray(xarray).shape[0]):
+        for j in range(np.asarray(xarray).shape[0]):
+            x = xarray[j]
             y = estimator.predict(x)
-
-            point = (y, x)
-
-            distance, nearest_location = tree.query(point)
-            nearest_location = (
-                int(data[nearest_location][0]),
-                int(data[nearest_location][1]),
-            )
-            if distance <= 4:
-                ypredict.append(y)
-                xpredict.append(x)
+            ypredict.append(y)
+            xpredict.append(x)
         segments.append([ypredict, xpredict])
     return segments
 

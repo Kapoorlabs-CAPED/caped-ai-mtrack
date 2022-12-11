@@ -216,10 +216,7 @@ class Ransac:
                     # Not an inlier
                     results_inliers_removed.append(starting_points[i])
                     continue
-                x = starting_points[i][0]
-                y = starting_points[i][1]
-                results_inliers.append((x, y))
-
+                results_inliers.append(starting_points[i])
             return (
                 np.array(results_inliers),
                 np.array(results_inliers_removed),
@@ -228,10 +225,11 @@ class Ransac:
 
     def extract_multiple_lines(self):
 
-        starting_points = self.data_points
+        starting_points = np.asarray(self.data_points)
         data_points_list = np.copy(self.data_points)
         data_points_list = data_points_list.tolist()
         estimators = []
+        estimator_inliers = []
         for index in range(0, self.iterations):
 
             if len(starting_points) <= self.min_samples:
@@ -249,7 +247,7 @@ class Ransac:
             else:
                 starting_points = []
             estimators.append(estimator)
-
+            estimator_inliers.append(inlier_points)
             if len(starting_points) < self.min_samples:
                 print(
                     "Not sufficeint inliers found %d , threshold=%d, therefore halting"
@@ -259,8 +257,8 @@ class Ransac:
                 break
             starting_points = inliers_removed_from_starting
 
-        segments = clean_ransac(estimators, self.data_points)
+        segments = clean_ransac(estimators, estimator_inliers)
         yarray, xarray = zip(*data_points_list)
-        plot_ransac_gt(segments, yarray, xarray, save_name="sklearn")
+        plot_ransac_gt(segments, yarray, xarray, save_name="caped-ai-mtrack")
 
         return estimators
