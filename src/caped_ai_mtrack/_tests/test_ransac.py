@@ -97,7 +97,7 @@ if __name__ == "__main__":
     # )
 
     plt.cla()
-    linear_points_ransac(250, 3, LinearFunction, 3, save_name="_linear_linear")
+    linear_points_ransac(250, 2, LinearFunction, 3, save_name="_linear_linear")
     # plt.cla()
     # linear_points_ransac(
     #   250, 2, QuadraticFunction, 3, save_name="_quadratic_linear"
