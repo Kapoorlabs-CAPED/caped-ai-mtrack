@@ -16,7 +16,7 @@ from caped_ai_mtrack.RansacModels import LinearFunction, QuadraticFunction
 @pytest.mark.parametrize("model", [LinearFunction, QuadraticFunction])
 @pytest.mark.parametrize("degree", [2, 3])
 @pytest.mark.parametrize("min_samples", [2, 2])
-def quadratic_points_ransac(
+def test_quadratic_points_ransac(
     num_points, min_samples, model, degree, save_name=""
 ):
 
@@ -48,7 +48,9 @@ def quadratic_points_ransac(
 @pytest.mark.parametrize("model", [LinearFunction, QuadraticFunction])
 @pytest.mark.parametrize("degree", [2, 3])
 @pytest.mark.parametrize("min_samples", [2, 3])
-def linear_points_ransac(num_points, min_samples, model, degree, save_name=""):
+def test_linear_points_ransac(
+    num_points, min_samples, model, degree, save_name=""
+):
 
     plt.cla()
     pointlist = random_points(num_points)
@@ -75,7 +77,7 @@ def linear_points_ransac(num_points, min_samples, model, degree, save_name=""):
 
 
 @pytest.mark.parametrize("num_points", [250])
-def draw_linear_points(num_points):
+def test_draw_linear_points(num_points):
 
     plt.cla()
     pointlist = random_points(num_points)
@@ -89,7 +91,7 @@ def draw_linear_points(num_points):
 
 
 @pytest.mark.parametrize("num_points", [250])
-def draw_quad_points(num_points):
+def test_draw_quad_points(num_points):
 
     plt.cla()
     pointlist = quadratic_points(num_points)
@@ -105,10 +107,12 @@ def draw_quad_points(num_points):
 if __name__ == "__main__":
 
     plt.cla()
-    draw_quad_points(250)
+    test_draw_quad_points(250)
     plt.cla()
-    linear_points_ransac(250, 2, LinearFunction, 3, save_name="_linear_linear")
+    test_linear_points_ransac(
+        250, 2, LinearFunction, 3, save_name="_linear_linear"
+    )
     plt.cla()
-    quadratic_points_ransac(
+    test_quadratic_points_ransac(
         250, 3, QuadraticFunction, 3, save_name="_quadratic_linear"
     )
