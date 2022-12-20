@@ -24,6 +24,7 @@ class ComboRansac:
         stop_score: float = np.inf,
         random_state=None,
         initial_inliers=None,
+        save_name="",
     ):
 
         self.data_points = data_points
@@ -42,6 +43,7 @@ class ComboRansac:
         self.random_state = random_state
         self.stop_score = stop_score
         self.initial_inliers = initial_inliers
+        self.save_name = save_name
         y, X = zip(*self.data_points)
         self.y = np.asarray(y)
         self.X = np.asarray(X)
@@ -69,6 +71,7 @@ class ComboRansac:
             self.stop_score,
             self.random_state,
             self.initial_inliers,
+            self.save_name,
         )
 
         self.ransac_line.check_consistent_length(self.y, self.X)
@@ -90,6 +93,7 @@ class ComboRansac:
             self.stop_score,
             self.random_state,
             self.initial_inliers,
+            self.save_name,
         )
 
     def find_multiple_lines_quadratic_inliers(self):

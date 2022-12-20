@@ -8,8 +8,15 @@ def quadratic_points(num_points: int):
     pointlist = []
 
     for i in range(num_points):
+        if i < num_points // 4:
+            pointlist.append((i * i, i))
+        if i >= num_points // 4 and i < num_points // 2:
+            pointlist.append((0.1 * i * i, i))
 
-        pointlist.append((i * i, i))
+        if i >= num_points // 2 and i < 3 * num_points / 4:
+            pointlist.append((-i + 200, i))
+        if i >= 3 * num_points // 4 and i <= num_points:
+            pointlist.append((i // 2, i))
 
     return pointlist
 

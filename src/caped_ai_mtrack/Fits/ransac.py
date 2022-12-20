@@ -25,6 +25,7 @@ class Ransac:
         stop_score: float = np.inf,
         random_state=None,
         initial_inliers=None,
+        save_name="",
     ):
 
         self.data_points = data_points
@@ -43,6 +44,7 @@ class Ransac:
         self.random_state = random_state
         self.stop_score = stop_score
         self.initial_inliers = initial_inliers
+        self.save_name = save_name
         y, X = zip(*self.data_points)
         self.y = np.asarray(y)
         self.X = np.asarray(X)
@@ -255,6 +257,6 @@ class Ransac:
 
         segments = clean_ransac(estimators, estimator_inliers)
         yarray, xarray = zip(*data_points_list)
-        plot_ransac_gt(segments, yarray, xarray, save_name="caped-ai-mtrack")
+        plot_ransac_gt(segments, yarray, xarray, save_name=self.save_name)
 
         return estimators

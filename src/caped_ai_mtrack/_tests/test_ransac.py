@@ -24,17 +24,18 @@ def quadratic_points_ransac(
     pointlist = quadratic_points(num_points)
     yarray, xarray = zip(*pointlist)
 
-    ransac_line = Ransac(
+    ransac_quad = Ransac(
         pointlist,
         model,
         degree,
         min_samples=min_samples,
         max_trials=10000,
         iterations=10,
-        residual_threshold=50,
+        residual_threshold=0.01,
         max_distance=10,
+        save_name=save_name,
     )
-    estimators = ransac_line.extract_multiple_lines()
+    estimators = ransac_quad.extract_multiple_lines()
     for estimator in estimators:
 
         ypredict = []
@@ -46,7 +47,7 @@ def quadratic_points_ransac(
 @pytest.mark.parametrize("num_points", [250])
 @pytest.mark.parametrize("model", [LinearFunction, QuadraticFunction])
 @pytest.mark.parametrize("degree", [2, 3])
-@pytest.mark.parametrize("min_samples", [4, 10])
+@pytest.mark.parametrize("min_samples", [2, 3])
 def linear_points_ransac(num_points, min_samples, model, degree, save_name=""):
 
     plt.cla()
@@ -60,8 +61,9 @@ def linear_points_ransac(num_points, min_samples, model, degree, save_name=""):
         min_samples=min_samples,
         max_trials=10000,
         iterations=10,
-        residual_threshold=0.1,
+        residual_threshold=0.01,
         max_distance=10,
+        save_name=save_name,
     )
     estimators = ransac_line.extract_multiple_lines()
     for estimator in estimators:
@@ -86,19 +88,27 @@ def draw_linear_points(num_points):
     plt.savefig(root_dir() + "GT")
 
 
-if __name__ == "__main__":
-
-    # quadratic_points_ransac(
-    #    250,3, LinearFunction, 2, save_name="_linear_quadratic"
-    # )
-    #    plt.cla()
-    #   quadratic_points_ransac(
-    #      250, 3, QuadraticFunction, 3, save_name="_quadratic_quadratic"
-    # )
+@pytest.mark.parametrize("num_points", [250])
+def draw_quad_points(num_points):
 
     plt.cla()
+    pointlist = quadratic_points(num_points)
+    yarray, xarray = zip(*pointlist)
+    plt.plot(xarray, yarray)
+    plt.title("GT")
+    plt.xlabel("x")
+    plt.ylabel("y")
+
+    plt.savefig(root_dir() + "GT_quad")
+
+
+if __name__ == "__main__":
+
+    plt.cla()
+    draw_quad_points(250)
+    plt.cla()
     linear_points_ransac(250, 2, LinearFunction, 3, save_name="_linear_linear")
-    # plt.cla()
-    # linear_points_ransac(
-    #   250, 2, QuadraticFunction, 3, save_name="_quadratic_linear"
-    # )
+    plt.cla()
+    quadratic_points_ransac(
+        250, 3, QuadraticFunction, 3, save_name="_quadratic_linear"
+    )

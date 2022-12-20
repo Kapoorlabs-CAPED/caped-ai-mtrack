@@ -4,6 +4,8 @@ import numpy as np
 
 from .generalized_function import GeneralFunction
 
+_epsilon = 1.0e-15
+
 
 class QuadraticFunction(GeneralFunction):
     def __init__(self, points: list, degree: int):
@@ -44,7 +46,7 @@ class QuadraticFunction(GeneralFunction):
             theta[1] += x * y
             theta[2] += y
 
-        delta = np.linalg.inv(np.reshape(delta, (3, 3)))
+        delta = np.linalg.pinv(np.reshape(delta, (3, 3)))
 
         self.coeff[0] = (
             delta[0, 0] * theta[0]
@@ -81,14 +83,18 @@ class QuadraticFunction(GeneralFunction):
         y1 = point[0]
 
         a3 = 2 * self.coeff[0] * self.coeff[0]
-        a2 = 3 * self.coeff[1] * self.coeff[0] / a3
-        a1 = (
+        a2 = np.true_divide(3 * self.coeff[1] * self.coeff[0], a3 + _epsilon)
+        a1 = np.true_divide(
             2 * self.coeff[2] * self.coeff[0]
             - 2 * self.coeff[0] * y1
             + 1
-            + self.coeff[1] * self.coeff[1]
-        ) / a3
-        a0 = (self.coeff[2] * self.coeff[1] - y1 * self.coeff[1] - x1) / a3
+            + self.coeff[1] * self.coeff[1],
+            a3 + _epsilon,
+        )
+        a0 = np.true_divide(
+            self.coeff[2] * self.coeff[1] - y1 * self.coeff[1] - x1,
+            a3 + _epsilon,
+        )
 
         p = (3 * a1 - a2 * a2) / 3
         q = (-9 * a1 * a2 + 27 * a0 + 2 * a2 * a2 * a2) / 27
