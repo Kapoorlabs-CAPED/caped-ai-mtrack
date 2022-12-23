@@ -35,7 +35,7 @@ def test_quadratic_points_ransac(
         max_distance=10,
         save_name=save_name,
     )
-    estimators = ransac_quad.extract_multiple_lines()
+    estimators, segments = ransac_quad.extract_multiple_lines()
     for estimator in estimators:
 
         ypredict = []
@@ -67,7 +67,7 @@ def test_linear_points_ransac(
         max_distance=10,
         save_name=save_name,
     )
-    estimators = ransac_line.extract_multiple_lines()
+    estimators, segments = ransac_line.extract_multiple_lines()
     for estimator in estimators:
 
         ypredict = []
