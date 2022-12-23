@@ -40,7 +40,7 @@ def test_quadratic_points_ransac(
 
         ypredict = []
         for x in range(np.asarray(xarray).shape[0]):
-            ypredict.append(estimator.predict(x))
+            ypredict.append(estimator.predict(xarray[x]))
         plot_points(plt, ypredict, yarray, xarray, save_name=save_name)
 
 
@@ -72,7 +72,7 @@ def test_linear_points_ransac(
 
         ypredict = []
         for x in range(np.asarray(xarray).shape[0]):
-            ypredict.append(estimator.predict(x))
+            ypredict.append(estimator.predict(xarray[x]))
         plot_points(plt, ypredict, yarray, xarray, save_name=save_name)
 
 
