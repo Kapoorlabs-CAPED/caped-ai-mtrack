@@ -78,6 +78,7 @@ class Ransac:
             starting_points = starting_points.tolist()
 
         print("starting_points", len(starting_points))
+
         y, X = zip(*starting_points)
         y = np.asarray(y)
         X = np.asarray(X)
@@ -222,6 +223,7 @@ class Ransac:
     def extract_multiple_lines(self):
 
         starting_points = np.asarray(self.data_points)
+
         data_points_list = np.copy(self.data_points)
         data_points_list = data_points_list.tolist()
         estimators = []
@@ -252,9 +254,8 @@ class Ransac:
 
                 break
             starting_points = inliers_removed_from_starting
-
         segments = clean_ransac(estimators, estimator_inliers)
         yarray, xarray = zip(*data_points_list)
         plot_ransac_gt(segments, yarray, xarray, save_name=self.save_name)
 
-        return estimators, segments
+        return estimators, estimator_inliers

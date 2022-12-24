@@ -32,7 +32,6 @@ def test_quadratic_points_ransac(
         max_trials=10000,
         iterations=10,
         residual_threshold=0.01,
-        max_distance=10,
         save_name=save_name,
     )
     estimators, segments = ransac_quad.extract_multiple_lines()
@@ -64,7 +63,6 @@ def test_linear_points_ransac(
         max_trials=10000,
         iterations=10,
         residual_threshold=0.01,
-        max_distance=10,
         save_name=save_name,
     )
     estimators, segments = ransac_line.extract_multiple_lines()
