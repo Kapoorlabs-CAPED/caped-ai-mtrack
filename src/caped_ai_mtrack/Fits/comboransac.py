@@ -2,6 +2,7 @@ import numpy as np
 
 from ..RansacModels import LinearFunction, QuadraticFunction
 from .ransac import Ransac
+from .utils import check_consistent_length
 
 
 class ComboRansac:
@@ -70,7 +71,7 @@ class ComboRansac:
             self.save_name,
         )
 
-        self.ransac_line.check_consistent_length(self.y, self.X)
+        check_consistent_length(self.y, self.X)
 
         self.ransac_quadratic = Ransac(
             self.data_points,
