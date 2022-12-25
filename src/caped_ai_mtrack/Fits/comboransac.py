@@ -139,10 +139,12 @@ class ComboRansac(Ransac):
                 )
 
                 break
-            starting_points = (
-                inliers_removed_from_starting
-                + inliers_removed_from_starting_line
-            )
+            starting_points = inliers_removed_from_starting
+            if inliers_removed_from_starting_line.shape[0] > 0:
+                starting_points = (
+                    starting_points + inliers_removed_from_starting_line
+                )
+
         # segments = clean_ransac(estimators, estimator_inliers)
         # yarray, xarray = zip(*data_points_list)
         # plot_ransac_gt(segments, yarray, xarray, save_name=self.save_name)
