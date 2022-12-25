@@ -13,7 +13,6 @@ class ComboRansac:
         max_trials: bool,
         iterations: int,
         residual_threshold: float,
-        max_distance: float,
         min_samples: int,
         stop_probability: float = 1,
         stop_sample_num: float = np.inf,
@@ -32,7 +31,6 @@ class ComboRansac:
         self.min_samples = min_samples
         self.residual_threshold = residual_threshold
         self.max_trials = max_trials
-        self.max_distance = max_distance
         self.iterations = iterations
         self.stop_probability = stop_probability
         self.stop_sample_num = stop_sample_num
@@ -60,7 +58,6 @@ class ComboRansac:
             self.max_trials,
             self.iterations,
             self.residual_threshold,
-            self.max_distance,
             self.min_samples,
             self.stop_probability,
             self.stop_sample_num,
@@ -82,7 +79,6 @@ class ComboRansac:
             self.max_trials,
             self.iterations,
             self.residual_threshold,
-            self.max_distance,
             self.min_samples,
             self.stop_probability,
             self.stop_sample_num,
