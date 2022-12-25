@@ -3,7 +3,7 @@ import warnings
 
 import numpy as np
 
-from .utils import check_consistent_length, clean_ransac, plot_ransac_gt
+from .utils import check_consistent_length
 
 
 class Ransac:
@@ -76,8 +76,6 @@ class Ransac:
 
         if isinstance(starting_points, np.ndarray):
             starting_points = starting_points.tolist()
-
-        print("starting_points", len(starting_points))
 
         y, X = zip(*starting_points)
         y = np.asarray(y)
@@ -254,8 +252,8 @@ class Ransac:
 
                 break
             starting_points = inliers_removed_from_starting
-        segments = clean_ransac(estimators, estimator_inliers)
-        yarray, xarray = zip(*data_points_list)
-        plot_ransac_gt(segments, yarray, xarray, save_name=self.save_name)
+        # segments = clean_ransac(estimators, estimator_inliers)
+        # yarray, xarray = zip(*data_points_list)
+        # plot_ransac_gt(segments, yarray, xarray, save_name=self.save_name)
 
         return estimators, estimator_inliers
