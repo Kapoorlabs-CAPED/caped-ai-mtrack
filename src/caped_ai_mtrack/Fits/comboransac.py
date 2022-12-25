@@ -5,7 +5,7 @@ from .ransac import Ransac
 from .utils import check_consistent_length
 
 
-class ComboRansac:
+class ComboRansac(Ransac):
     def __init__(
         self,
         data_points: list,
@@ -106,8 +106,10 @@ class ComboRansac:
                     "No more points available. Terminating search for RANSAC"
                 )
                 break
-            ransac_first_quadratic = self.extract_first_ransac_line(
-                starting_points
+            ransac_first_quadratic = (
+                self.ransac_quadratic.extract_first_ransac_line(
+                    starting_points
+                )
             )
             if ransac_first_quadratic is not None:
                 (
@@ -116,7 +118,7 @@ class ComboRansac:
                     estimator_quadratic,
                 ) = ransac_first_quadratic
 
-                ransac_first_line = self.extract_first_ransac_line(
+                ransac_first_line = self.ransac_line.extract_first_ransac_line(
                     inlier_points_quadratic
                 )
                 if ransac_first_line is not None:
@@ -144,23 +146,3 @@ class ComboRansac:
             )
 
         return estimators, estimator_inliers
-
-        def extract_first_ransac_line(self, starting_points):
-
-            ransac_result = self.ransac(starting_points)
-
-            if ransac_result is not None:
-                estimator, inliers = ransac_result
-                results_inliers = []
-                results_inliers_removed = []
-                for i in range(0, len(starting_points)):
-                    if not inliers[i]:
-                        # Not an inlier
-                        results_inliers_removed.append(starting_points[i])
-                        continue
-                    results_inliers.append(starting_points[i])
-                return (
-                    np.array(results_inliers),
-                    np.array(results_inliers_removed),
-                    estimator,
-                )
