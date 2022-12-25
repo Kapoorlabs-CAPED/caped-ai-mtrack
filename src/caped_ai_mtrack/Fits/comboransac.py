@@ -2,7 +2,6 @@ import numpy as np
 
 from ..RansacModels import LinearFunction, QuadraticFunction
 from .ransac import Ransac
-from .utils import clean_ransac, plot_ransac_gt
 
 
 class ComboRansac:
@@ -151,8 +150,4 @@ class ComboRansac:
                 + inliers_removed_from_starting_linear
             )
 
-        segments = clean_ransac(estimators, estimator_inliers)
-        yarray, xarray = zip(*data_points_list)
-        plot_ransac_gt(segments, yarray, xarray, save_name="caped-ai-mtrack")
-
-        return estimators
+        return estimators, estimator_inliers
