@@ -106,10 +106,8 @@ class ComboRansac:
                     "No more points available. Terminating search for RANSAC"
                 )
                 break
-            ransac_first_quadratic = (
-                self.ransac_quadratic.extract_first_ransac_line(
-                    starting_points
-                )
+            ransac_first_quadratic = self.extract_first_ransac_line(
+                starting_points
             )
             if ransac_first_quadratic is not None:
                 (
@@ -118,10 +116,8 @@ class ComboRansac:
                     estimator_quadratic,
                 ) = ransac_first_quadratic
 
-                ransac_first_line = (
-                    self.ransac_quadratic.extract_first_ransac_line(
-                        inlier_points_quadratic
-                    )
+                ransac_first_line = self.extract_first_ransac_line(
+                    inlier_points_quadratic
                 )
                 if ransac_first_line is not None:
                     (
