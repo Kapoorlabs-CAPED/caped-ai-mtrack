@@ -107,21 +107,31 @@ class ComboRansac(Ransac):
                     "No more points available. Terminating search for RANSAC"
                 )
                 break
-            ransac_first_line = (
+            ransac_first_quad = (
                 self.ransac_quadratic.extract_first_ransac_line(
                     starting_points
                 )
             )
-            if ransac_first_line is not None:
+            if ransac_first_quad is not None:
                 (
                     inlier_points,
                     inliers_removed_from_starting,
+                    estimator_quad,
+                ) = ransac_first_quad
+
+                ransac_first_line = self.ransac_line.extract_first_ransac_line(
+                    inlier_points
+                )
+            if ransac_first_line is not None:
+                (
+                    inlier_points_line,
+                    inliers_removed_from_starting_line,
                     estimator,
                 ) = ransac_first_line
             else:
                 starting_points = []
             estimators.append(estimator)
-            estimator_inliers.append(inlier_points)
+            estimator_inliers.append(inlier_points_line)
             if len(starting_points) < self.min_samples:
                 print(
                     "Not sufficeint inliers found %d , threshold=%d, therefore halting"
@@ -129,7 +139,10 @@ class ComboRansac(Ransac):
                 )
 
                 break
-            starting_points = inliers_removed_from_starting
+            starting_points = (
+                inliers_removed_from_starting
+                + inliers_removed_from_starting_line
+            )
         # segments = clean_ransac(estimators, estimator_inliers)
         # yarray, xarray = zip(*data_points_list)
         # plot_ransac_gt(segments, yarray, xarray, save_name=self.save_name)
