@@ -204,19 +204,20 @@ class Ransac:
 
         if ransac_result is not None:
             estimator, inliers = ransac_result
-            results_inliers = []
-            results_inliers_removed = []
-            for i in range(0, len(starting_points)):
-                if not inliers[i]:
-                    # Not an inlier
-                    results_inliers_removed.append(starting_points[i])
-                    continue
-                results_inliers.append(starting_points[i])
-            return (
-                np.array(results_inliers),
-                np.array(results_inliers_removed),
-                estimator,
-            )
+            if inliers is not None:
+                results_inliers = []
+                results_inliers_removed = []
+                for i in range(0, len(starting_points)):
+                    if not inliers[i]:
+                        # Not an inlier
+                        results_inliers_removed.append(starting_points[i])
+                        continue
+                    results_inliers.append(starting_points[i])
+                return (
+                    np.array(results_inliers),
+                    np.array(results_inliers_removed),
+                    estimator,
+                )
 
     def extract_multiple_lines(self):
 
