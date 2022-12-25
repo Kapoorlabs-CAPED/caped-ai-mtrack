@@ -140,11 +140,6 @@ class ComboRansac(Ransac):
 
                 break
             starting_points = inliers_removed_from_starting
-            if inliers_removed_from_starting_line.shape[0] > 0:
-                starting_points = np.concatenate(
-                    (starting_points, inliers_removed_from_starting_line),
-                    axis=0,
-                )
 
         # segments = clean_ransac(estimators, estimator_inliers)
         # yarray, xarray = zip(*data_points_list)
