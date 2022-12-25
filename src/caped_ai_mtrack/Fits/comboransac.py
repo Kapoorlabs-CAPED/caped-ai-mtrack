@@ -122,12 +122,12 @@ class ComboRansac(Ransac):
                 ransac_first_line = self.ransac_line.extract_first_ransac_line(
                     inlier_points
                 )
-            if ransac_first_line is not None:
-                (
-                    inlier_points_line,
-                    inliers_removed_from_starting_line,
-                    estimator,
-                ) = ransac_first_line
+                if ransac_first_line is not None:
+                    (
+                        inlier_points_line,
+                        inliers_removed_from_starting_line,
+                        estimator,
+                    ) = ransac_first_line
             else:
                 starting_points = []
             estimators.append(estimator)
