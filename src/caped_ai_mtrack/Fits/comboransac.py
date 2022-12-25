@@ -95,6 +95,7 @@ class ComboRansac(Ransac):
     def extract_multiple_lines(self):
 
         starting_points = np.asarray(self.data_points)
+
         data_points_list = np.copy(self.data_points)
         data_points_list = data_points_list.tolist()
         estimators = []
@@ -106,33 +107,21 @@ class ComboRansac(Ransac):
                     "No more points available. Terminating search for RANSAC"
                 )
                 break
-            ransac_first_quadratic = (
+            ransac_first_line = (
                 self.ransac_quadratic.extract_first_ransac_line(
                     starting_points
                 )
             )
-            if ransac_first_quadratic is not None:
+            if ransac_first_line is not None:
                 (
-                    inlier_points_quadratic,
-                    inliers_removed_from_starting_quadratic,
-                    estimator_quadratic,
-                ) = ransac_first_quadratic
-
-                ransac_first_line = self.ransac_line.extract_first_ransac_line(
-                    inlier_points_quadratic
-                )
-                if ransac_first_line is not None:
-                    (
-                        inlier_points_linear,
-                        inliers_removed_from_starting_linear,
-                        estimator_linear,
-                    ) = ransac_first_quadratic
-
+                    inlier_points,
+                    inliers_removed_from_starting,
+                    estimator,
+                ) = ransac_first_line
             else:
                 starting_points = []
-
-            estimators.append(estimator_linear)
-            estimator_inliers.append(inlier_points_linear)
+            estimators.append(estimator)
+            estimator_inliers.append(inlier_points)
             if len(starting_points) < self.min_samples:
                 print(
                     "Not sufficeint inliers found %d , threshold=%d, therefore halting"
@@ -140,9 +129,9 @@ class ComboRansac(Ransac):
                 )
 
                 break
-            starting_points = (
-                inliers_removed_from_starting_quadratic
-                + inliers_removed_from_starting_linear
-            )
+            starting_points = inliers_removed_from_starting
+        # segments = clean_ransac(estimators, estimator_inliers)
+        # yarray, xarray = zip(*data_points_list)
+        # plot_ransac_gt(segments, yarray, xarray, save_name=self.save_name)
 
         return estimators, estimator_inliers
