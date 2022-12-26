@@ -122,7 +122,7 @@ class ComboRansac(Ransac):
             else:
                 starting_points = []
             estimators.append(estimator)
-            estimator_inliers.append(inlier_points)
+            estimator_inliers.append(zip(*inlier_points))
             if len(starting_points) < self.min_samples:
                 print(
                     "Not sufficeint inliers found %d , threshold=%d, therefore halting"
@@ -135,7 +135,6 @@ class ComboRansac(Ransac):
         # segments = clean_ransac(estimators, estimator_inliers)
         # yarray, xarray = zip(*data_points_list)
         # plot_ransac_gt(segments, yarray, xarray, save_name=self.save_name)
-        print(estimator_inliers)
         starting_points = np.asarray(estimator_inliers)
 
         data_points_list = np.copy(estimator_inliers)
