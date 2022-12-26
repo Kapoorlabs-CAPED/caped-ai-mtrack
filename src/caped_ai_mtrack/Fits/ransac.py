@@ -2,7 +2,6 @@ import math
 import warnings
 
 import numpy as np
-from rdp import rdp
 
 from .utils import check_consistent_length
 
@@ -222,7 +221,6 @@ class Ransac:
 
     def extract_multiple_lines(self):
 
-        self.data_points = rdp(self.data_points)
         starting_points = np.asarray(self.data_points)
 
         data_points_list = np.copy(self.data_points)
