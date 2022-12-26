@@ -135,7 +135,7 @@ class ComboRansac(Ransac):
         # segments = clean_ransac(estimators, estimator_inliers)
         # yarray, xarray = zip(*data_points_list)
         # plot_ransac_gt(segments, yarray, xarray, save_name=self.save_name)
-
+        print(estimator_inliers)
         starting_points = np.asarray(estimator_inliers)
 
         data_points_list = np.copy(estimator_inliers)
