@@ -59,8 +59,8 @@ def clean_estimators(
                         endtime_sec = estimator_inliers_list_sec[-1][timeindex]
 
                         if (
-                            abs(starttime - starttime_sec) <= timeveto
-                            and abs(endtime - endtime_sec) <= timeveto
+                            starttime < starttime_sec
+                            and endtime > endtime_sec
                             and coefficients[0] > 0
                             and coefficients_sec[0] > 0
                         ):
