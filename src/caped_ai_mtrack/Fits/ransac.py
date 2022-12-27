@@ -3,7 +3,7 @@ import warnings
 
 import numpy as np
 
-from .utils import check_consistent_length
+from .utils import check_consistent_length, clean_estimators
 
 
 class Ransac:
@@ -16,6 +16,7 @@ class Ransac:
         max_trials: int,
         iterations: int,
         residual_threshold: float,
+        timeindex: int = 0,
         stop_probability: float = 1,
         stop_sample_num: float = np.inf,
         max_skips: float = np.inf,
@@ -33,6 +34,7 @@ class Ransac:
         self.min_samples = min_samples
         self.residual_threshold = residual_threshold
         self.max_trials = max_trials
+        self.timeindex = timeindex
         self.iterations = iterations
         self.stop_probability = stop_probability
         self.stop_sample_num = stop_sample_num
@@ -253,6 +255,12 @@ class Ransac:
 
                 break
             starting_points = inliers_removed_from_starting
+        estimators, estimator_inliers = clean_estimators(
+            estimators=estimators,
+            estimator_inliers=estimator_inliers,
+            degree=self.degree,
+            timeindex=self.timeindex,
+        )
         # segments = clean_ransac(estimators, estimator_inliers)
         # yarray, xarray = zip(*data_points_list)
         # plot_ransac_gt(segments, yarray, xarray, save_name=self.save_name)

@@ -9,6 +9,72 @@ def root_dir():
     return os.path.dirname(os.path.abspath(__file__))
 
 
+def clean_estimators(
+    estimators, estimator_inliers, degree, timeindex, timeveto=10
+):
+
+    estimator_remove = []
+    estimator_inlier_remove = []
+    for i in range(len(estimators)):
+
+        estimator = estimators[i]
+        if estimator not in estimator_remove:
+            coefficients = []
+            for d in range(degree):
+                coefficients.append(estimator.get_coefficients(d))
+            estimator_inlier = estimator_inliers[i]
+            estimator_inliers_list = np.copy(estimator_inlier).tolist()
+            estimator_inliers_list = sorted(
+                estimator_inliers_list, key=lambda x: x[timeindex]
+            )
+            starttime = estimator_inliers_list[0][timeindex]
+
+            endtime = estimator_inliers_list[-1][timeindex]
+            for j in range(len(estimators)):
+                if j != i:
+
+                    estimator_sec = estimators[j]
+                    if estimator_sec not in estimator_remove:
+
+                        coefficients_sec = []
+                        for d in range(degree):
+                            coefficients_sec.append(
+                                estimator_sec.get_coefficients(d)
+                            )
+                        estimator_inlier_sec = estimator_inliers[j]
+                        estimator_inliers_list_sec = np.copy(
+                            estimator_inlier_sec
+                        ).tolist()
+                        estimator_inliers_list_sec = sorted(
+                            estimator_inliers_list_sec,
+                            key=lambda x: x[timeindex],
+                        )
+                        starttime_sec = estimator_inliers_list_sec[0][
+                            timeindex
+                        ]
+
+                        endtime_sec = estimator_inliers_list_sec[-1][timeindex]
+
+                        if (
+                            abs(starttime - starttime_sec) <= timeveto
+                            and abs(endtime - endtime_sec) <= timeveto
+                            and coefficients[0] > 0
+                            and coefficients_sec[0] > 0
+                        ):
+
+                            estimator_remove.append(estimator_sec)
+                            estimator_inlier_remove.append(
+                                estimator_inlier_sec
+                            )
+
+    clean_estimators = list(set(estimators) - set(estimator_remove))
+    clean_estimator_inliers = list(
+        set(estimator_inliers) - set(estimator_inlier_remove)
+    )
+
+    return clean_estimators, clean_estimator_inliers
+
+
 def clean_ransac(estimators, estimator_inliers):
 
     segments = []
@@ -52,7 +118,7 @@ def check_consistent_length(*arrays):
     Parameters
     ----------
     *arrays : list or tuple of input objects.
-        Objects that will be checked for consistent length.
+         Objects that will be checked for consistent length.
     """
 
     lengths = [_num_samples(X) for X in arrays if X is not None]
@@ -99,14 +165,14 @@ def check_random_state(seed):
     Parameters
     ----------
     seed : None, int or instance of RandomState
-        If seed is None, return the RandomState singleton used by np.random.
-        If seed is an int, return a new RandomState instance seeded with seed.
-        If seed is already a RandomState instance, return it.
-        Otherwise raise ValueError.
+         If seed is None, return the RandomState singleton used by np.random.
+         If seed is an int, return a new RandomState instance seeded with seed.
+         If seed is already a RandomState instance, return it.
+         Otherwise raise ValueError.
     Returns
     -------
     :class:`numpy:numpy.random.RandomState`
-        The random state object based on `seed` parameter.
+         The random state object based on `seed` parameter.
     """
     if seed is None or seed is np.random:
         return np.random.mtrand._rand

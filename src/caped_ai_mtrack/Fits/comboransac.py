@@ -2,7 +2,7 @@ import numpy as np
 
 from ..RansacModels import LinearFunction, QuadraticFunction
 from .ransac import Ransac
-from .utils import check_consistent_length
+from .utils import check_consistent_length, clean_estimators
 
 
 class ComboRansac(Ransac):
@@ -15,6 +15,7 @@ class ComboRansac(Ransac):
         max_trials: bool,
         iterations: int,
         residual_threshold: float,
+        timeindex: int = 0,
         stop_probability: float = 1,
         stop_sample_num: float = np.inf,
         max_skips: float = np.inf,
@@ -32,6 +33,7 @@ class ComboRansac(Ransac):
         self.min_samples = min_samples
         self.residual_threshold = residual_threshold
         self.max_trials = max_trials
+        self.timeindex = timeindex
         self.iterations = iterations
         self.stop_probability = stop_probability
         self.stop_sample_num = stop_sample_num
@@ -60,6 +62,7 @@ class ComboRansac(Ransac):
             self.max_trials,
             self.iterations,
             self.residual_threshold,
+            self.timeindex,
             self.stop_probability,
             self.stop_sample_num,
             self.max_skips,
@@ -81,6 +84,7 @@ class ComboRansac(Ransac):
             self.max_trials,
             self.iterations,
             self.residual_threshold,
+            self.timeindex,
             self.stop_probability,
             self.stop_sample_num,
             self.max_skips,
@@ -177,5 +181,11 @@ class ComboRansac(Ransac):
         # segments = clean_ransac(estimators, estimator_inliers)
         # yarray, xarray = zip(*data_points_list)
         # plot_ransac_gt(segments, yarray, xarray, save_name=self.save_name)
+        estimators, estimator_inliers = clean_estimators(
+            estimators=estimators,
+            estimator_inliers=estimator_inliers,
+            degree=self.degree,
+            timeindex=self.timeindex,
+        )
 
         return estimators, estimator_inliers
