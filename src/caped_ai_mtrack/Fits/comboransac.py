@@ -104,8 +104,9 @@ class ComboRansac(Ransac):
         data_points_list = data_points_list.tolist()
         estimators = []
         estimator_inliers = []
+        self.orig_min_samples = self.min_samples
         if self.min_samples < 3:
-            self.orig_min_samples = self.min_samples
+
             self.min_samples = 3
         for index in range(0, self.iterations):
 
