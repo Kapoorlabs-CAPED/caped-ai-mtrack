@@ -17,6 +17,7 @@ def clean_estimators(
     estimator_inlier_remove = []
     clean_estimator = []
     clean_estimator_inliers = []
+    index_poped = []
     for i in range(len(estimators)):
 
         estimator = estimators[i]
@@ -63,24 +64,17 @@ def clean_estimators(
                             and coefficients[0] > 0
                             and coefficients_sec[0] > 0
                         ):
-
+                            index_poped.append(j)
                             estimator_remove.append(estimator_sec)
                             estimator_inlier_remove.append(
-                                estimator_inlier_sec
+                                estimator_inliers_list_sec
                             )
 
-    for estimator in estimators:
-        if any(
-            estimator not in estimator_remove for estimator in estimator_remove
-        ):
-            clean_estimator.append(estimator)
+    for i in range(len(estimators)):
+        if i not in index_poped:
+            clean_estimator.append(estimators[i])
+            clean_estimator_inliers.append(estimator_inliers[i])
 
-    for inlier in estimator_inliers:
-        if any(
-            inlier not in estimator_inlier_remove
-            for inlier in estimator_inlier_remove
-        ):
-            clean_estimator_inliers.append(inlier)
     return clean_estimator, clean_estimator_inliers
 
 
