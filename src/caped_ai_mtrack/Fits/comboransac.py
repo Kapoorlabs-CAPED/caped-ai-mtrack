@@ -47,7 +47,7 @@ class ComboRansac(Ransac):
         y, X = zip(*self.data_points)
         self.y = np.asarray(y)
         self.X = np.asarray(X)
-
+        self.degree = 2
         if self.min_samples is None:
 
             self.min_samples = self.X.shape[0] + 1
