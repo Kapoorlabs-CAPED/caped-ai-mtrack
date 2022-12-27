@@ -67,7 +67,9 @@ def clean_estimators(
                                 estimator_inlier_sec
                             )
 
-    clean_estimators = list(set(estimators) - set(estimator_remove))
+    clean_estimators = np.asarray(
+        list(set(estimators.tolist()) - set(estimator_remove.tolist()))
+    )
     clean_estimator_inliers = list(
         set(estimator_inliers) - set(estimator_inlier_remove)
     )
