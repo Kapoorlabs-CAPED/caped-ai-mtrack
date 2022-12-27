@@ -61,8 +61,6 @@ def clean_estimators(
                         if (
                             starttime <= starttime_sec
                             and endtime >= endtime_sec
-                            and coefficients[0] > 0
-                            and coefficients_sec[0] > 0
                         ):
                             index_poped.append(j)
                             estimator_remove.append(estimator_sec)
