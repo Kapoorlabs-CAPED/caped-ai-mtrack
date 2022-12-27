@@ -10,7 +10,12 @@ def root_dir():
 
 
 def clean_estimators(
-    estimators, estimator_inliers, degree, timeindex, timeveto=10
+    estimators,
+    estimator_inliers,
+    degree,
+    timeindex,
+    timeveto=10,
+    slopeveto=0.1,
 ):
 
     estimator_remove = []
@@ -121,6 +126,10 @@ def clean_estimators(
                         if (
                             abs(starttime - starttime_sec) < timeveto
                             and abs(endtime - endtime_sec) < timeveto
+                            and abs(
+                                coefficients[0] - coefficients_sec[0]
+                                <= slopeveto
+                            )
                         ):
                             index_poped.append(j)
                             estimator_remove.append(estimator_sec)
