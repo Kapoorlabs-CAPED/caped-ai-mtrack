@@ -73,10 +73,10 @@ def clean_estimators(
         if estimator not in estimator_remove:
             clean_estimator.append(estimator)
 
-    for inlier in estimator_inliers:
+    for inlier in estimator_inliers.tolist():
         if inlier not in estimator_inlier_remove:
             clean_estimator_inliers.append(inlier)
-
+    clean_estimator_inliers = np.asarray(clean_estimator_inliers)
     return clean_estimator, clean_estimator_inliers
 
 
