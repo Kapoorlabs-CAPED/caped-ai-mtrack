@@ -15,6 +15,8 @@ def clean_estimators(
 
     estimator_remove = []
     estimator_inlier_remove = []
+    clean_estimator = []
+    clean_estimator_inliers = []
     for i in range(len(estimators)):
 
         estimator = estimators[i]
@@ -67,14 +69,15 @@ def clean_estimators(
                                 estimator_inlier_sec
                             )
 
-    clean_estimators = np.asarray(
-        list(set(estimators.tolist()) - set(estimator_remove.tolist()))
-    )
-    clean_estimator_inliers = list(
-        set(estimator_inliers) - set(estimator_inlier_remove)
-    )
+    for estimator in estimators:
+        if estimator not in estimator_remove:
+            clean_estimator.append(estimator)
 
-    return clean_estimators, clean_estimator_inliers
+    for inlier in estimator_inliers:
+        if inlier not in estimator_inlier_remove:
+            clean_estimator_inliers.append(inlier)
+
+    return clean_estimator, clean_estimator_inliers
 
 
 def clean_ransac(estimators, estimator_inliers):
