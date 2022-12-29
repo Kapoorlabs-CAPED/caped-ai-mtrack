@@ -126,15 +126,7 @@ class ComboRansac(Ransac):
                     inliers_removed_from_starting,
                     estimator,
                 ) = ransac_first_quad
-                ransac_first_linear = (
-                    self.ransac_line.extract_first_ransac_line(inlier_points)
-                )
 
-                (
-                    inlier_points,
-                    inliers_removed_from_starting,
-                    estimator,
-                ) = ransac_first_linear
             else:
                 starting_points = []
             estimators.append(estimator)
@@ -148,6 +140,52 @@ class ComboRansac(Ransac):
                 break
             starting_points = inliers_removed_from_starting
 
+        # segments = clean_ransac(estimators, estimator_inliers)
+        # yarray, xarray = zip(*data_points_list)
+        # plot_ransac_gt(segments, yarray, xarray, save_name=self.save_name)
+        estimator_inliers = [
+            item for sublist in estimator_inliers for item in sublist
+        ]
+        starting_points = np.asarray(estimator_inliers)
+
+        data_points_list = np.copy(estimator_inliers)
+        data_points_list = data_points_list.tolist()
+        estimators = []
+        estimator_inliers = []
+        self.min_samples = self.orig_min_samples
+        for index in range(0, self.iterations):
+
+            if len(starting_points) <= self.min_samples:
+                print(
+                    "No more points available. Terminating search for RANSAC"
+                )
+                break
+            ransac_first_line = self.ransac_line.extract_first_ransac_line(
+                starting_points
+            )
+            if ransac_first_line is not None:
+                (
+                    inlier_points,
+                    inliers_removed_from_starting,
+                    estimator,
+                ) = ransac_first_line
+
+            else:
+                starting_points = []
+            estimators.append(estimator)
+            estimator_inliers.append(inlier_points)
+            if len(starting_points) < self.min_samples:
+                print(
+                    "Not sufficeint inliers found %d , threshold=%d, therefore halting"
+                    % (len(starting_points), self.min_samples)
+                )
+
+                break
+            starting_points = inliers_removed_from_starting
+
+        # segments = clean_ransac(estimators, estimator_inliers)
+        # yarray, xarray = zip(*data_points_list)
+        # plot_ransac_gt(segments, yarray, xarray, save_name=self.save_name)
         estimators, estimator_inliers = clean_estimators(
             estimators=estimators,
             estimator_inliers=estimator_inliers,

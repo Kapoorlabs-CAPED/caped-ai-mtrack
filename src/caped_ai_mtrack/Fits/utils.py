@@ -26,54 +26,56 @@ def clean_estimators(
     pre_clean_estimator_inliers = []
     index_poped = []
     for i in range(len(estimators)):
+        if i not in index_poped:
+            estimator = estimators[i]
+            if estimator not in estimator_remove:
+                coefficients = []
+                for d in range(degree):
+                    coefficients.append(estimator.get_coefficients(d))
+                estimator_inlier = estimator_inliers[i]
+                estimator_inliers_list = np.copy(estimator_inlier).tolist()
+                estimator_inliers_list = sorted(
+                    estimator_inliers_list, key=lambda x: x[timeindex]
+                )
+                starttime = estimator_inliers_list[0][timeindex]
 
-        estimator = estimators[i]
-        if estimator not in estimator_remove:
-            coefficients = []
-            for d in range(degree):
-                coefficients.append(estimator.get_coefficients(d))
-            estimator_inlier = estimator_inliers[i]
-            estimator_inliers_list = np.copy(estimator_inlier).tolist()
-            estimator_inliers_list = sorted(
-                estimator_inliers_list, key=lambda x: x[timeindex]
-            )
-            starttime = estimator_inliers_list[0][timeindex]
+                endtime = estimator_inliers_list[-1][timeindex]
+                for j in range(len(estimators)):
+                    if j != i:
 
-            endtime = estimator_inliers_list[-1][timeindex]
-            for j in range(len(estimators)):
-                if j != i:
+                        estimator_sec = estimators[j]
+                        if estimator_sec not in estimator_remove:
 
-                    estimator_sec = estimators[j]
-                    if estimator_sec not in estimator_remove:
-
-                        coefficients_sec = []
-                        for d in range(degree):
-                            coefficients_sec.append(
-                                estimator_sec.get_coefficients(d)
+                            coefficients_sec = []
+                            for d in range(degree):
+                                coefficients_sec.append(
+                                    estimator_sec.get_coefficients(d)
+                                )
+                            estimator_inlier_sec = estimator_inliers[j]
+                            estimator_inliers_list_sec = np.copy(
+                                estimator_inlier_sec
+                            ).tolist()
+                            estimator_inliers_list_sec = sorted(
+                                estimator_inliers_list_sec,
+                                key=lambda x: x[timeindex],
                             )
-                        estimator_inlier_sec = estimator_inliers[j]
-                        estimator_inliers_list_sec = np.copy(
-                            estimator_inlier_sec
-                        ).tolist()
-                        estimator_inliers_list_sec = sorted(
-                            estimator_inliers_list_sec,
-                            key=lambda x: x[timeindex],
-                        )
-                        starttime_sec = estimator_inliers_list_sec[0][
-                            timeindex
-                        ]
+                            starttime_sec = estimator_inliers_list_sec[0][
+                                timeindex
+                            ]
 
-                        endtime_sec = estimator_inliers_list_sec[-1][timeindex]
+                            endtime_sec = estimator_inliers_list_sec[-1][
+                                timeindex
+                            ]
 
-                        if (
-                            starttime <= starttime_sec
-                            and endtime >= endtime_sec
-                        ):
-                            index_poped.append(j)
-                            estimator_remove.append(estimator_sec)
-                            estimator_inlier_remove.append(
-                                estimator_inliers_list_sec
-                            )
+                            if (
+                                starttime <= starttime_sec
+                                and endtime >= endtime_sec
+                            ):
+                                index_poped.append(j)
+                                estimator_remove.append(estimator_sec)
+                                estimator_inlier_remove.append(
+                                    estimator_inliers_list_sec
+                                )
 
     for i in range(len(estimators)):
         if i not in index_poped:
@@ -84,58 +86,62 @@ def clean_estimators(
     estimator_inlier_remove = []
     index_poped = []
     for i in range(len(pre_clean_estimator)):
+        if i not in index_poped:
+            estimator = pre_clean_estimator[i]
+            if estimator not in estimator_remove:
+                coefficients = []
+                for d in range(degree):
+                    coefficients.append(estimator.get_coefficients(d))
+                estimator_inlier = pre_clean_estimator_inliers[i]
+                estimator_inliers_list = np.copy(estimator_inlier).tolist()
+                estimator_inliers_list = sorted(
+                    estimator_inliers_list, key=lambda x: x[timeindex]
+                )
+                starttime = estimator_inliers_list[0][timeindex]
 
-        estimator = pre_clean_estimator[i]
-        if estimator not in estimator_remove:
-            coefficients = []
-            for d in range(degree):
-                coefficients.append(estimator.get_coefficients(d))
-            estimator_inlier = pre_clean_estimator_inliers[i]
-            estimator_inliers_list = np.copy(estimator_inlier).tolist()
-            estimator_inliers_list = sorted(
-                estimator_inliers_list, key=lambda x: x[timeindex]
-            )
-            starttime = estimator_inliers_list[0][timeindex]
+                endtime = estimator_inliers_list[-1][timeindex]
+                for j in range(len(pre_clean_estimator)):
+                    if j != i:
 
-            endtime = estimator_inliers_list[-1][timeindex]
-            for j in range(len(pre_clean_estimator)):
-                if j != i:
+                        estimator_sec = pre_clean_estimator[j]
+                        if estimator_sec not in estimator_remove:
 
-                    estimator_sec = pre_clean_estimator[j]
-                    if estimator_sec not in estimator_remove:
-
-                        coefficients_sec = []
-                        for d in range(degree):
-                            coefficients_sec.append(
-                                estimator_sec.get_coefficients(d)
+                            coefficients_sec = []
+                            for d in range(degree):
+                                coefficients_sec.append(
+                                    estimator_sec.get_coefficients(d)
+                                )
+                            estimator_inlier_sec = pre_clean_estimator_inliers[
+                                j
+                            ]
+                            estimator_inliers_list_sec = np.copy(
+                                estimator_inlier_sec
+                            ).tolist()
+                            estimator_inliers_list_sec = sorted(
+                                estimator_inliers_list_sec,
+                                key=lambda x: x[timeindex],
                             )
-                        estimator_inlier_sec = pre_clean_estimator_inliers[j]
-                        estimator_inliers_list_sec = np.copy(
-                            estimator_inlier_sec
-                        ).tolist()
-                        estimator_inliers_list_sec = sorted(
-                            estimator_inliers_list_sec,
-                            key=lambda x: x[timeindex],
-                        )
-                        starttime_sec = estimator_inliers_list_sec[0][
-                            timeindex
-                        ]
+                            starttime_sec = estimator_inliers_list_sec[0][
+                                timeindex
+                            ]
 
-                        endtime_sec = estimator_inliers_list_sec[-1][timeindex]
+                            endtime_sec = estimator_inliers_list_sec[-1][
+                                timeindex
+                            ]
 
-                        if (
-                            abs(starttime - starttime_sec) < timeveto
-                            and abs(endtime - endtime_sec) < timeveto
-                            and abs(
-                                coefficients[0] - coefficients_sec[0]
-                                <= slopeveto
-                            )
-                        ):
-                            index_poped.append(j)
-                            estimator_remove.append(estimator_sec)
-                            estimator_inlier_remove.append(
-                                estimator_inliers_list_sec
-                            )
+                            if (
+                                abs(starttime - starttime_sec) < timeveto
+                                and abs(endtime - endtime_sec) < timeveto
+                                and abs(
+                                    coefficients[0] - coefficients_sec[0]
+                                    <= slopeveto
+                                )
+                            ):
+                                index_poped.append(j)
+                                estimator_remove.append(estimator_sec)
+                                estimator_inlier_remove.append(
+                                    estimator_inliers_list_sec
+                                )
 
     for i in range(len(pre_clean_estimator)):
         if i not in index_poped:
