@@ -14,7 +14,7 @@ def clean_estimators(
     estimator_inliers,
     degree,
     timeindex,
-    timeveto=1,
+    timeveto=10,
     slopeveto=0.1,
 ):
 
